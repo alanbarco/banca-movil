@@ -1,0 +1,35 @@
+# --- IA / herramientas locales (NO se ignora .specify/ ni .claude/skills/) ---
+.claude/settings.local.json
+CLAUDE.local.md
+
+# --- Enunciado de la prueba técnica (material del banco, no se publica) ---
+BI - Prueba Tecnica Senior Front.pdf
+
+# --- Secretos (Principio VI) ---
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+key.properties
+google-services.json
+GoogleService-Info.plist
+firebase_options.dart
+service-account*.json
+
+# --- Dart / Flutter ---
+.dart_tool/
+.packages
+build/
+coverage/
+.flutter-plugins
+.flutter-plugins-dependencies
+pubspec_overrides.yaml
+
+# --- IDE / SO ---
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.iml
+.DS_Store
+Thumbs.db
