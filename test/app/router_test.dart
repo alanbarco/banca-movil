@@ -146,10 +146,7 @@ void main() {
     session.set(SessionStatus.authenticated);
     await tester.pumpAndSettle();
     expect(find.text('page /home'), findsOneWidget);
-    expect(
-      router.routerDelegate.currentConfiguration.uri.path,
-      AppRoutes.home,
-    );
+    expect(router.routerDelegate.currentConfiguration.uri.path, AppRoutes.home);
   });
 
   testWidgets('ruta desconocida muestra la página de no encontrada', (
