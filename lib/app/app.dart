@@ -1,6 +1,3 @@
-import 'dart:async';
-
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -24,19 +21,7 @@ class BiApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider.value(value: faults),
-        BlocProvider(
-          create: (_) {
-            final cubit = ConnectivityCubit(
-              connectivity: Connectivity(),
-              observability: sl(),
-              forcedOfflineChanges: faults.stream
-                  .map((state) => state.forcedOffline)
-                  .distinct(),
-            );
-            unawaited(cubit.start());
-            return cubit;
-          },
-        ),
+        BlocProvider.value(value: sl<ConnectivityCubit>()),
         BlocProvider(create: (_) => BalanceVisibilityCubit(sl())),
       ],
       child: MaterialApp.router(

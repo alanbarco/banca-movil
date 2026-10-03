@@ -1,15 +1,28 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/sdui/home_section.dart';
+import '../../../../core/sdui/section_registry.dart';
 import '../../../../core/session/current_user_profile.dart';
 import '../../../../core/ui/theme.dart';
-import '../../../../core/ui/widgets/empty_view.dart';
 
-/// Inicio interino de US1: confirma el acceso. US2 agrega el resumen de
-/// cuentas (T080) y US3 lo reemplaza por el inicio SDUI completo (T089).
+/// Inicio interino de US2: saludo y la sección `accounts_summary` dibujada
+/// vía [SectionRegistry]. US3 lo reemplaza por el inicio SDUI completo
+/// (T089).
 class HomePage extends StatelessWidget {
-  const HomePage({required this.currentUser, super.key});
+  const HomePage({
+    required this.currentUser,
+    required this.sections,
+    super.key,
+  });
 
   final CurrentUserProfile currentUser;
+  final SectionRegistry sections;
+
+  static const accountsSummary = HomeSection(
+    id: 'accounts_summary',
+    type: HomeSectionType.accountsSummary,
+    order: 0,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -20,32 +33,23 @@ class HomePage extends StatelessWidget {
         initialData: currentUser.current,
         builder: (context, snapshot) {
           final user = snapshot.data;
-          return Padding(
+          return ListView(
             padding: const EdgeInsets.all(AppSizes.spacing),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Semantics(
-                  header: true,
-                  child: Text(
-                    'Bienvenido a BI App',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
+            children: [
+              Semantics(
+                header: true,
+                child: Text(
+                  'Bienvenido a BI App',
+                  style: Theme.of(context).textTheme.headlineSmall,
                 ),
-                if (user != null) ...[
-                  const SizedBox(height: 8),
-                  Text('Perfil: ${_segmentLabel(user.segment)}'),
-                ],
-                const Expanded(
-                  child: EmptyView(
-                    message:
-                        'Tu cuenta ya está abierta. Muy pronto verás '
-                        'aquí tus saldos y movimientos.',
-                    icon: Icons.account_balance_outlined,
-                  ),
-                ),
+              ),
+              if (user != null) ...[
+                const SizedBox(height: 8),
+                Text('Perfil: ${_segmentLabel(user.segment)}'),
               ],
-            ),
+              const SizedBox(height: AppSizes.spacing * 1.5),
+              ?sections.build(context, accountsSummary),
+            ],
           );
         },
       ),

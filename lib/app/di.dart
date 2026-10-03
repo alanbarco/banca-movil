@@ -1,7 +1,15 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get_it/get_it.dart';
 
+import '../core/connectivity/connectivity_cubit.dart';
+import '../core/connectivity/connectivity_status.dart';
+
+import '../core/fault_injection/fault_config.dart';
 import '../core/fault_injection/fault_injection_cubit.dart';
+import '../core/fault_injection/fault_runner.dart';
 import '../core/flags/feature_flag_service.dart';
 import '../core/flags/remote_config_feature_flag_service.dart';
 import '../core/flags/remote_config_service.dart';
@@ -14,6 +22,7 @@ import '../core/session/session_events.dart';
 import '../core/session/session_status.dart';
 import '../core/session/session_timeout_service.dart';
 import '../core/storage/local_storage.dart';
+import '../features/accounts/accounts_module.dart';
 import '../features/auth/auth_module.dart';
 import '../features/personalization/personalization_module.dart';
 import 'app_config.dart';
@@ -22,7 +31,11 @@ final sl = GetIt.instance;
 
 /// Módulos de las features, en orden de registro. Cada historia agrega el
 /// suyo (US1: auth, US2: accounts, US3: personalization, …).
-const featureModules = <FeatureModule>[AuthModule(), PersonalizationModule()];
+const featureModules = <FeatureModule>[
+  AuthModule(),
+  AccountsModule(),
+  PersonalizationModule(),
+];
 
 /// Registra `core` y luego las features. Los servicios que requieren
 /// inicialización asíncrona llegan ya inicializados desde `main`.
@@ -50,7 +63,25 @@ void configureDependencies({
     ..registerLazySingleton<FaultInjectionCubit>(
       () => FaultInjectionCubit(firestore: firestore),
     )
-    // El simulador solo se conecta a la red en builds de demo.
+    // Una sola instancia: el banner global y las features ven lo mismo.
+    ..registerLazySingleton<ConnectivityCubit>(() {
+      final cubit = ConnectivityCubit(
+        connectivity: Connectivity(),
+        observability: sl(),
+        forcedOfflineChanges: sl<FaultInjectionCubit>().stream
+            .map((state) => state.forcedOffline)
+            .distinct(),
+      );
+      unawaited(cubit.start());
+      return cubit;
+    })
+    ..registerLazySingleton<ConnectivityStatus>(() => sl<ConnectivityCubit>())
+    // El simulador solo se conecta a datos y red en builds de demo.
+    ..registerLazySingleton<FaultRunner>(
+      () => FaultRunner(
+        AppConfig.demoTools ? sl<FaultInjectionCubit>() : const NoFaults(),
+      ),
+    )
     ..registerLazySingleton<DioFactory>(
       () => DioFactory(
         faults: AppConfig.demoTools ? sl<FaultInjectionCubit>() : null,
