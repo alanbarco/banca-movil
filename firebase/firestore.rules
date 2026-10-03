@@ -1,0 +1,141 @@
+rules_version = '2';
+
+// Contrato: specs/001-digital-banking-mvp/contracts/firestore-security.md
+// Las herramientas admin (tools/admin, consola) no pasan por estas reglas.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function userPath(uid) {
+      return /databases/$(database)/documents/users/$(uid);
+    }
+
+    // Cuentas y movimientos solo se crean en el mismo batch que crea el perfil:
+    // el perfil no existía antes y existirá al confirmar la escritura.
+    // Cada documento usa 2 accesos (exists + existsAfter); el límite de un
+    // batch es 20, así que la semilla admite hasta 8 movimientos.
+    function isOnboardingBatch(uid) {
+      return !exists(userPath(uid)) && existsAfter(userPath(uid));
+    }
+
+    function isValidSegment(value) {
+      return value in ['student', 'professional', 'entrepreneur'];
+    }
+
+    function isValidInterests(value) {
+      return value is list
+        && value.size() >= 1
+        && value.size() <= 5
+        && value.toSet().size() == value.size()
+        && value.toSet().hasOnly(['savings', 'investment', 'travel', 'education', 'business']);
+    }
+
+    function isValidPreferences(value) {
+      return value is map
+        && value.keys().hasOnly(['notificationsEnabled'])
+        && value.notificationsEnabled is bool;
+    }
+
+    function isValidNewProfile(data) {
+      return data.keys().hasOnly([
+          'fullName', 'email', 'segment', 'interests', 'preferences',
+          'termsVersion', 'termsAcceptedAt', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasAll([
+          'fullName', 'email', 'segment', 'interests', 'preferences',
+          'termsVersion', 'termsAcceptedAt', 'createdAt'
+        ])
+        && data.fullName is string
+        && data.fullName.size() >= 3
+        && data.fullName.size() <= 80
+        && data.email == request.auth.token.email
+        && isValidSegment(data.segment)
+        && isValidInterests(data.interests)
+        && isValidPreferences(data.preferences)
+        && data.termsVersion is string
+        && data.termsVersion.size() > 0
+        && data.termsAcceptedAt == request.time
+        && data.createdAt == request.time
+        && (!('updatedAt' in data) || data.updatedAt == request.time);
+    }
+
+    function isValidProfileUpdate() {
+      let changed = request.resource.data.diff(resource.data).affectedKeys();
+      let data = request.resource.data;
+      return changed.hasOnly(['segment', 'interests', 'preferences', 'updatedAt'])
+        && data.updatedAt == request.time
+        && isValidSegment(data.segment)
+        && isValidInterests(data.interests)
+        && isValidPreferences(data.preferences);
+    }
+
+    function isValidNewAccount(data) {
+      return data.keys().hasOnly(['type', 'number', 'currency', 'balanceCents', 'openedAt', 'updatedAt'])
+        && data.keys().hasAll(['type', 'number', 'currency', 'balanceCents', 'openedAt', 'updatedAt'])
+        && data.type in ['savings', 'checking']
+        && data.number is string
+        && data.number.matches('^[0-9]{10}$')
+        && data.currency == 'USD'
+        && data.balanceCents is int
+        && data.balanceCents >= 0
+        && data.balanceCents <= 1000000
+        && data.openedAt == request.time
+        && data.updatedAt == request.time;
+    }
+
+    function isValidNewMovement(data) {
+      return data.keys().hasOnly(['date', 'description', 'amountCents', 'type', 'balanceAfterCents'])
+        && data.keys().hasAll(['date', 'description', 'amountCents', 'type', 'balanceAfterCents'])
+        && data.date is timestamp
+        && data.date <= request.time
+        && data.description is string
+        && data.description.size() >= 1
+        && data.description.size() <= 60
+        && data.amountCents is int
+        && data.amountCents > 0
+        && data.amountCents <= 500000
+        && data.type in ['credit', 'debit']
+        && data.balanceAfterCents is int
+        && data.balanceAfterCents >= 0;
+    }
+
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid) && isValidNewProfile(request.resource.data);
+      allow update: if isOwner(uid) && isValidProfileUpdate();
+      allow delete: if false;
+
+      match /accounts/{accountId} {
+        allow read: if isOwner(uid);
+        allow create: if isOwner(uid)
+          && isOnboardingBatch(uid)
+          && isValidNewAccount(request.resource.data);
+        allow update, delete: if false;
+
+        match /movements/{movementId} {
+          allow read: if isOwner(uid);
+          allow create: if isOwner(uid)
+            && isOnboardingBatch(uid)
+            && isValidNewMovement(request.resource.data);
+          allow update, delete: if false;
+        }
+      }
+
+      match /devices/{token} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
+    // Todo lo demás queda cerrado.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
