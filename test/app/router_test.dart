@@ -1,13 +1,12 @@
 import 'dart:async';
 
-import 'package:bi_app/app/feature_module.dart';
 import 'package:bi_app/app/route_guard.dart';
 import 'package:bi_app/app/router.dart';
 import 'package:bi_app/app/shell/app_shell.dart';
 import 'package:bi_app/app/splash_page.dart';
 import 'package:bi_app/core/flags/feature_flag_service.dart';
+import 'package:bi_app/core/modules/feature_module.dart';
 import 'package:bi_app/core/routing/app_routes.dart';
-import 'package:bi_app/core/routing/pending_route_store.dart';
 import 'package:bi_app/core/session/session_status.dart';
 import 'package:bi_app/core/session/session_timeout_service.dart';
 import 'package:flutter/material.dart';
@@ -72,11 +71,7 @@ void main() {
   tearDown(() => timeout.dispose());
 
   GoRouter build(List<FeatureModule> modules) => createRouter(
-    guard: RouteGuard(
-      session: session,
-      flags: _AllFlagsOn(),
-      pendingRoutes: PendingRouteStore(),
-    ),
+    guard: RouteGuard(session: session, flags: _AllFlagsOn()),
     sessionTimeout: timeout,
     modules: modules,
     refreshOn: [session.changes],
@@ -130,6 +125,31 @@ void main() {
     await tester.pump(const Duration(minutes: 4));
     expect(timeout.isActive, isTrue);
     timeout.stop();
+  });
+
+  testWidgets('logout desde el perfil y nuevo login terminan en /home', (
+    tester,
+  ) async {
+    session.status = SessionStatus.authenticated;
+    final router = build(const [_FakeModule()]);
+    await pump(tester, router);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Perfil'));
+    await tester.pumpAndSettle();
+    expect(find.text('page /profile'), findsOneWidget);
+
+    session.set(SessionStatus.unauthenticated);
+    await tester.pumpAndSettle();
+    expect(find.text('login'), findsOneWidget);
+
+    session.set(SessionStatus.authenticated);
+    await tester.pumpAndSettle();
+    expect(find.text('page /home'), findsOneWidget);
+    expect(
+      router.routerDelegate.currentConfiguration.uri.path,
+      AppRoutes.home,
+    );
   });
 
   testWidgets('ruta desconocida muestra la página de no encontrada', (

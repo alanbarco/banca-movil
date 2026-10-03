@@ -3,13 +3,16 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/modules/feature_module.dart';
+import '../core/observability/app_logger.dart';
 import '../core/routing/app_routes.dart';
 import '../core/session/session_timeout_service.dart';
-import 'feature_module.dart';
 import 'not_found_page.dart';
 import 'route_guard.dart';
 import 'shell/app_shell.dart';
 import 'splash_page.dart';
+
+final _logger = AppLogger('router');
 
 /// Compone las rutas de las features bajo `/splash` y el shell de pestañas.
 GoRouter createRouter({
@@ -26,7 +29,15 @@ GoRouter createRouter({
   return GoRouter(
     initialLocation: initialLocation,
     refreshListenable: StreamListenable(refreshOn),
-    redirect: (context, state) => guard.redirect(state.uri),
+    redirect: (context, state) {
+      final target = guard.redirect(state.uri);
+      _logger.debug('redirect', {
+        'from': state.uri.path,
+        'to': target ?? '(sin cambio)',
+        'session': guard.sessionStatus.name,
+      });
+      return target;
+    },
     errorBuilder: (context, state) => const NotFoundPage(),
     routes: [
       GoRoute(

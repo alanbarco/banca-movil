@@ -1,7 +1,6 @@
 import '../core/flags/feature_flag_service.dart';
 import '../core/flags/flag_keys.dart';
 import '../core/routing/app_routes.dart';
-import '../core/routing/pending_route_store.dart';
 import '../core/session/session_status.dart';
 
 /// Reglas de `redirect` de `contracts/ui-routes.md`, separadas de GoRouter
@@ -10,39 +9,36 @@ class RouteGuard {
   RouteGuard({
     required SessionStatusSource session,
     required FeatureFlagService flags,
-    required PendingRouteStore pendingRoutes,
     String? Function()? currentSegment,
     this.demoTools = false,
   }) : _session = session,
        _flags = flags,
-       _pending = pendingRoutes,
        _currentSegment = currentSegment;
 
   final SessionStatusSource _session;
   final FeatureFlagService _flags;
-  final PendingRouteStore _pending;
   final String? Function()? _currentSegment;
   final bool demoTools;
+
+  SessionStatus get sessionStatus => _session.status;
 
   /// Ruta a la que hay que ir, o `null` para quedarse en [uri].
   String? redirect(Uri uri) {
     final path = uri.path;
     switch (_session.status) {
       case SessionStatus.unknown:
-        if (path == AppRoutes.splash) return null;
-        _pending.save(uri.toString());
-        return AppRoutes.splash;
+        return path == AppRoutes.splash ? null : AppRoutes.splash;
 
       case SessionStatus.unauthenticated:
         if (path != AppRoutes.splash && AppRoutes.isPublic(path)) return null;
-        _pending.save(uri.toString());
         return AppRoutes.login;
 
       case SessionStatus.needsOnboarding:
         return path == AppRoutes.register ? null : AppRoutes.register;
 
       case SessionStatus.authenticated:
-        if (AppRoutes.isPublic(path)) return _pending.take() ?? AppRoutes.home;
+        // Tras login o registro el destino es siempre el inicio.
+        if (AppRoutes.isPublic(path)) return AppRoutes.home;
         return isAllowedByFlags(path) ? null : AppRoutes.home;
     }
   }

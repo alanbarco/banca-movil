@@ -18,6 +18,7 @@ las compone. `redirect` global según `AuthBloc`.
 
 Reglas de `redirect`:
 
-- No autenticado → cualquier ruta protegida redirige a `/login` guardando la ruta destino.
-- Autenticado en `/login` o `/register` → `/home` (o la ruta destino guardada).
+- No autenticado → cualquier ruta protegida redirige a `/login`.
+- Autenticado en `/login` o `/register` → siempre `/home` (decisión de producto: el
+  cliente entra por el inicio; un deep link de push se abre encima del inicio en US5).
 - Ruta con flag apagado → `/home`.

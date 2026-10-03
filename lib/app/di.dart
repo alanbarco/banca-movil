@@ -5,6 +5,7 @@ import '../core/fault_injection/fault_injection_cubit.dart';
 import '../core/flags/feature_flag_service.dart';
 import '../core/flags/remote_config_feature_flag_service.dart';
 import '../core/flags/remote_config_service.dart';
+import '../core/modules/feature_module.dart';
 import '../core/network/dio_factory.dart';
 import '../core/observability/observability_service.dart';
 import '../core/routing/pending_route_store.dart';
@@ -13,14 +14,15 @@ import '../core/session/session_events.dart';
 import '../core/session/session_status.dart';
 import '../core/session/session_timeout_service.dart';
 import '../core/storage/local_storage.dart';
+import '../features/auth/auth_module.dart';
+import '../features/personalization/personalization_module.dart';
 import 'app_config.dart';
-import 'feature_module.dart';
 
 final sl = GetIt.instance;
 
 /// Módulos de las features, en orden de registro. Cada historia agrega el
 /// suyo (US1: auth, US2: accounts, US3: personalization, …).
-const featureModules = <FeatureModule>[];
+const featureModules = <FeatureModule>[AuthModule(), PersonalizationModule()];
 
 /// Registra `core` y luego las features. Los servicios que requieren
 /// inicialización asíncrona llegan ya inicializados desde `main`.

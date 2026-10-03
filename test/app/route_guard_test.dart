@@ -1,7 +1,6 @@
 import 'package:bi_app/app/route_guard.dart';
 import 'package:bi_app/core/flags/feature_flag_service.dart';
 import 'package:bi_app/core/flags/flag_keys.dart';
-import 'package:bi_app/core/routing/pending_route_store.dart';
 import 'package:bi_app/core/session/session_status.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -30,13 +29,11 @@ class _Flags implements FeatureFlagService {
 void main() {
   late _Session session;
   late _Flags flags;
-  late PendingRouteStore pending;
   late RouteGuard guard;
 
   RouteGuard buildGuard({bool demoTools = false}) => RouteGuard(
     session: session,
     flags: flags,
-    pendingRoutes: pending,
     currentSegment: () => 'student',
     demoTools: demoTools,
   );
@@ -46,7 +43,6 @@ void main() {
   setUp(() {
     session = _Session();
     flags = _Flags();
-    pending = PendingRouteStore();
     guard = buildGuard();
   });
 
@@ -55,9 +51,9 @@ void main() {
       expect(go('/splash'), isNull);
     });
 
-    test('cualquier otra ruta va a /splash y guarda el destino', () {
+    test('cualquier otra ruta va a /splash', () {
       expect(go('/accounts/a1'), '/splash');
-      expect(pending.pending, '/accounts/a1');
+      expect(go('/login'), '/splash');
     });
   });
 
@@ -70,10 +66,10 @@ void main() {
       expect(go('/forgot-password'), isNull);
     });
 
-    test('splash y rutas protegidas van a /login guardando el destino', () {
+    test('splash y rutas protegidas van a /login', () {
       expect(go('/splash'), '/login');
+      expect(go('/profile'), '/login');
       expect(go('/offers/o1?src=push'), '/login');
-      expect(pending.pending, '/offers/o1?src=push');
     });
   });
 
@@ -88,15 +84,20 @@ void main() {
   group('autenticado', () {
     setUp(() => session.status = SessionStatus.authenticated);
 
-    test('rutas públicas van a /home', () {
-      expect(go('/splash'), '/home');
+    test('tras login, registro o splash el destino es siempre /home', () {
       expect(go('/login'), '/home');
+      expect(go('/register'), '/home');
+      expect(go('/splash'), '/home');
+      expect(go('/forgot-password'), '/home');
     });
 
-    test('rutas públicas van a la ruta pendiente y la consumen', () {
-      pending.save('/accounts/a1');
+    test('cerrar sesión desde el perfil y volver a entrar lleva a /home', () {
+      expect(go('/profile'), isNull);
 
-      expect(go('/login'), '/accounts/a1');
+      session.status = SessionStatus.unauthenticated;
+      expect(go('/profile'), '/login');
+
+      session.status = SessionStatus.authenticated;
       expect(go('/login'), '/home');
     });
 

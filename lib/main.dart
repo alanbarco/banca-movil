@@ -15,7 +15,6 @@ import 'app/router.dart';
 import 'core/flags/feature_flag_service.dart';
 import 'core/flags/remote_config_service.dart';
 import 'core/observability/firebase_observability_service.dart';
-import 'core/routing/pending_route_store.dart';
 import 'core/session/current_user_profile.dart';
 import 'core/session/session_status.dart';
 import 'core/session/session_timeout_service.dart';
@@ -74,7 +73,6 @@ GoRouter _buildRouter(RemoteConfigService remoteConfig) {
     guard: RouteGuard(
       session: session,
       flags: flags,
-      pendingRoutes: sl<PendingRouteStore>(),
       currentSegment: _currentSegment,
       demoTools: AppConfig.demoTools,
     ),
