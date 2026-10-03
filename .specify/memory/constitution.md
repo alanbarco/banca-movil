@@ -30,7 +30,7 @@ independiente sin reescribirla.
 una app única con fronteras estrictas entrega la misma modularidad lógica sin el costo de
 configurar y mantener un monorepo multi-paquete; la extracción futura queda trazada.
 
-### II. Gestión de Estado con BLoC (NON-NEGOTIABLE)
+### II. Gestión de Estado con BLoC y Cubit (NON-NEGOTIABLE)
 
 - Todo estado de presentación con lógica MUST gestionarse con `flutter_bloc` (`Bloc` o
   `Cubit`). No se permiten otros gestores de estado (Provider como state manager, Riverpod,
