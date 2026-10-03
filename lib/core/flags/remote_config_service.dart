@@ -89,6 +89,10 @@ class RemoteConfigService {
       );
     }
 
+    _logger.info('Remote Config listo', {
+      'remote': RemoteConfigKeys.all.where(isRemoteValue).join(','),
+    });
+
     _realtime = _remoteConfig.onConfigUpdated.listen(
       _onConfigUpdated,
       onError: (Object error, StackTrace stackTrace) {
@@ -98,6 +102,10 @@ class RemoteConfigService {
       },
     );
   }
+
+  /// `true` si el valor activo de [key] vino de la consola (no del default).
+  bool isRemoteValue(String key) =>
+      _remoteConfig.getValue(key).source == ValueSource.valueRemote;
 
   /// Parámetro JSON validado; nunca lanza.
   Map<String, dynamic> getJson(String key) {

@@ -52,6 +52,9 @@ void main() {
     when(() => remote.fetchAndActivate()).thenAnswer((_) async => true);
     when(() => remote.activate()).thenAnswer((_) async => true);
     when(() => remote.onConfigUpdated).thenAnswer((_) => realtime.stream);
+    when(
+      () => remote.getValue(any()),
+    ).thenReturn(RemoteConfigValue(null, ValueSource.valueDefault));
     when(() => remote.getString(any())).thenAnswer(
       (invocation) => values[invocation.positionalArguments.first] ?? '',
     );
