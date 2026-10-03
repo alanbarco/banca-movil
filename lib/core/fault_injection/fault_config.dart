@@ -26,6 +26,14 @@ abstract interface class FaultConfigSource {
   FaultConfig configFor(FaultTarget target);
 }
 
+/// Sin simulación: builds sin `DEMO_TOOLS`.
+class NoFaults implements FaultConfigSource {
+  const NoFaults();
+
+  @override
+  FaultConfig configFor(FaultTarget target) => FaultConfig.normal;
+}
+
 /// Error lanzado por el simulador; las capas `data` lo traducen a `Failure`.
 class SimulatedFaultException implements Exception {
   const SimulatedFaultException(this.target, this.mode);

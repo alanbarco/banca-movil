@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../observability/analytics_events.dart';
 import '../observability/observability_service.dart';
+import 'connectivity_status.dart';
 
 class ConnectivityState extends Equatable {
   const ConnectivityState({
@@ -34,7 +35,8 @@ class ConnectivityState extends Equatable {
 
 /// Conectividad global para el banner offline y la recarga al reconectar
 /// (FR-029).
-class ConnectivityCubit extends Cubit<ConnectivityState> {
+class ConnectivityCubit extends Cubit<ConnectivityState>
+    implements ConnectivityStatus {
   ConnectivityCubit({
     required Connectivity connectivity,
     required ObservabilityService observability,
@@ -48,6 +50,13 @@ class ConnectivityCubit extends Cubit<ConnectivityState> {
   final ObservabilityService _observability;
   final Stream<bool>? _forcedOfflineChanges;
   final List<StreamSubscription<Object?>> _subscriptions = [];
+
+  @override
+  bool get isOnline => state.isOnline;
+
+  @override
+  Stream<bool> get onlineChanges =>
+      stream.map((state) => state.isOnline).distinct();
 
   Future<void> start() async {
     _subscriptions.add(_connectivity.onConnectivityChanged.listen(_onResults));
