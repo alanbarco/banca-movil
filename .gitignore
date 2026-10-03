@@ -12,9 +12,6 @@ BI - Prueba Tecnica Senior Front.pdf
 *.keystore
 *.jks
 key.properties
-google-services.json
-GoogleService-Info.plist
-firebase_options.dart
 service-account*.json
 
 # --- Dart / Flutter ---
