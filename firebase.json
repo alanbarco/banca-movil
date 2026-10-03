@@ -1,0 +1,28 @@
+{
+  "firestore": {
+    "rules": "firebase/firestore.rules",
+    "indexes": "firebase/firestore.indexes.json"
+  },
+  "remoteconfig": {
+    "template": "firebase/remoteconfig.template.json"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "bi-app-ae0d1",
+          "appId": "1:354628097886:android:5a18bdd1196fa8af6be1cf",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "bi-app-ae0d1",
+          "configurations": {
+            "android": "1:354628097886:android:5a18bdd1196fa8af6be1cf"
+          }
+        }
+      }
+    }
+  }
+}

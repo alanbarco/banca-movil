@@ -13,6 +13,9 @@ BI - Prueba Tecnica Senior Front.pdf
 *.jks
 key.properties
 service-account*.json
+# Config de Firebase con API key: se genera localmente (flutterfire) y en CI desde secrets
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
 
 # --- Dart / Flutter ---
 .dart_tool/
@@ -22,11 +25,26 @@ coverage/
 .flutter-plugins
 .flutter-plugins-dependencies
 pubspec_overrides.yaml
+.pub-cache/
+.pub/
+*.log
+.history
+.swiftpm/
+migrate_working_dir/
+app.*.symbols
+app.*.map.json
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# --- Herramientas Node (tools/admin) ---
+node_modules/
 
 # --- IDE / SO ---
 .idea/
 .vscode/*
 !.vscode/extensions.json
+!.vscode/launch.json
 *.iml
 .DS_Store
 Thumbs.db
