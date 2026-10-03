@@ -92,7 +92,7 @@ con una sola app no se justifica `apps/`.
 .
 ├── lib/
 │   ├── main.dart                      # bootstrap: Firebase, Crashlytics, DI, runApp
-│   ├── firebase_options.dart          # generado por flutterfire (versionado)
+│   ├── firebase_options.dart          # lee claves de .env vía --dart-define-from-file (sin secretos)
 │   ├── app/
 │   │   ├── app.dart                   # MaterialApp.router, tema, BlocProviders globales
 │   │   ├── di.dart                    # get_it: registra core + cada feature

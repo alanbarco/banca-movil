@@ -20,14 +20,19 @@ Guía para configurar, ejecutar y **validar** el MVP de punta a punta. Todo es g
 1. Crear proyecto en la consola de Firebase (plan **Spark**; Analytics habilitado).
 2. **Authentication** → habilitar *Email/Password*.
 3. **Firestore** → crear base en modo producción.
-4. Desde la raíz del repo:
+4. Credenciales locales (**no se versionan**):
+   - Consola → Configuración del proyecto → Tus apps → app Android
+     `com.alanbarco.bi_app` → descargar **`google-services.json`** a `android/app/`.
+   - Copiar `.env.example` a `.env` y completar los valores de esa misma pantalla.
+   - ⚠️ No ejecutar `flutterfire configure`: sobrescribe `lib/firebase_options.dart`, que lee
+     las claves desde `.env`.
+5. Desde la raíz del repo:
    ```powershell
    firebase login
    firebase use --add                     # seleccionar el proyecto
-   flutterfire configure                  # genera lib/firebase_options.dart y google-services.json
    firebase deploy --only firestore:rules,firestore:indexes,remoteconfig
    ```
-5. (Opcional, herramientas del banco) Consola → Configuración → Cuentas de servicio →
+6. (Opcional, herramientas del banco) Consola → Configuración → Cuentas de servicio →
    generar clave → guardar como `tools/admin/service-account.json` (**ignorado por git**).
    ```powershell
    cd tools/admin; npm install
@@ -37,9 +42,12 @@ Guía para configurar, ejecutar y **validar** el MVP de punta a punta. Todo es g
 
 ```powershell
 flutter pub get
-flutter run --dart-define=DEMO_TOOLS=true      # con panel de simulación de fallos
-flutter run --release                          # sin herramientas de demo
+flutter run --dart-define-from-file=.env              # DEMO_TOOLS=true en .env → panel de fallos
+flutter run --release --dart-define-from-file=.env    # con DEMO_TOOLS=false para la versión limpia
 ```
+
+CI (GitHub Actions) reconstruye las credenciales desde los secrets `FIREBASE_ENV` (contenido
+de `.env`) y `GOOGLE_SERVICES_JSON` (contenido de `android/app/google-services.json`).
 
 ## 4. Pruebas
 
