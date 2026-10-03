@@ -1,0 +1,225 @@
+{
+  "home_layout": {
+    "schemaVersion": 1,
+    "segments": {
+      "default": {
+        "sections": [
+          { "id": "accounts", "type": "accounts_summary", "order": 0, "payload": {} },
+          {
+            "id": "quick_actions",
+            "type": "quick_actions",
+            "order": 1,
+            "payload": {
+              "items": [
+                { "id": "fx", "label": "Divisas", "icon": "currency_exchange", "route": "/fx", "flag": "fx_service" },
+                { "id": "profile", "label": "Mi perfil", "icon": "person", "route": "/profile" }
+              ]
+            }
+          },
+          {
+            "id": "welcome_banner",
+            "type": "banner",
+            "order": 2,
+            "payload": {
+              "title": "Bienvenido a BI App",
+              "subtitle": "Tu banco, 100 % digital y a tu medida.",
+              "color": "#C2410C"
+            }
+          },
+          {
+            "id": "tip_security",
+            "type": "tip",
+            "order": 3,
+            "payload": {
+              "title": "Consejo de seguridad",
+              "body": "Nunca compartas tu contraseña. El banco jamás te la pedirá por teléfono ni correo."
+            }
+          }
+        ]
+      },
+      "student": {
+        "sections": [
+          { "id": "accounts", "type": "accounts_summary", "order": 0, "payload": {} },
+          {
+            "id": "quick_actions",
+            "type": "quick_actions",
+            "order": 1,
+            "payload": {
+              "items": [
+                { "id": "fx", "label": "Divisas", "icon": "currency_exchange", "route": "/fx", "flag": "fx_service" },
+                { "id": "profile", "label": "Mi perfil", "icon": "person", "route": "/profile" }
+              ]
+            }
+          },
+          {
+            "id": "student_banner",
+            "type": "banner",
+            "order": 2,
+            "payload": {
+              "title": "Tu primera cuenta, sin costo",
+              "subtitle": "Ahorra para tus metas mientras estudias.",
+              "color": "#1D4ED8",
+              "route": "/offers/student_savings"
+            }
+          },
+          {
+            "id": "student_offers",
+            "type": "offer_carousel",
+            "order": 3,
+            "flag": "offers",
+            "interests": ["education", "savings", "travel"],
+            "payload": {
+              "items": [
+                { "id": "student_savings", "title": "Meta de ahorro estudiantil", "description": "Separa una parte de cada ingreso para tus estudios.", "interests": ["savings", "education"], "route": "/offers/student_savings" },
+                { "id": "student_travel", "title": "Ahorro para tu viaje", "description": "Planifica tu intercambio o vacaciones con metas mensuales.", "interests": ["travel"], "route": "/offers/student_travel" },
+                { "id": "student_courses", "title": "Financia tus cursos", "description": "Opciones para certificaciones y cursos cortos.", "interests": ["education"], "route": "/offers/student_courses" }
+              ]
+            }
+          },
+          {
+            "id": "tip_budget",
+            "type": "tip",
+            "order": 4,
+            "interests": ["savings"],
+            "payload": {
+              "title": "Regla 50/30/20",
+              "body": "Destina 50 % a necesidades, 30 % a gustos y 20 % al ahorro."
+            }
+          }
+        ]
+      },
+      "professional": {
+        "sections": [
+          { "id": "accounts", "type": "accounts_summary", "order": 0, "payload": {} },
+          {
+            "id": "quick_actions",
+            "type": "quick_actions",
+            "order": 1,
+            "payload": {
+              "items": [
+                { "id": "fx", "label": "Divisas", "icon": "currency_exchange", "route": "/fx", "flag": "fx_service" },
+                { "id": "profile", "label": "Mi perfil", "icon": "person", "route": "/profile" }
+              ]
+            }
+          },
+          {
+            "id": "professional_banner",
+            "type": "banner",
+            "order": 2,
+            "payload": {
+              "title": "Haz crecer tu dinero",
+              "subtitle": "Conoce las opciones de inversión a plazo.",
+              "color": "#047857",
+              "route": "/offers/pro_investment"
+            }
+          },
+          {
+            "id": "professional_offers",
+            "type": "offer_carousel",
+            "order": 3,
+            "flag": "offers",
+            "interests": ["investment", "savings", "travel"],
+            "payload": {
+              "items": [
+                { "id": "pro_investment", "title": "Inversión a plazo fijo", "description": "Rentabilidad conocida desde el primer día.", "interests": ["investment"], "route": "/offers/pro_investment" },
+                { "id": "pro_savings", "title": "Ahorro programado", "description": "Automatiza tu ahorro cada fin de mes.", "interests": ["savings"], "route": "/offers/pro_savings" },
+                { "id": "pro_travel", "title": "Viaja sin preocupaciones", "description": "Consulta el tipo de cambio antes de tu viaje.", "interests": ["travel"], "route": "/offers/pro_travel" }
+              ]
+            }
+          },
+          {
+            "id": "tip_emergency",
+            "type": "tip",
+            "order": 4,
+            "interests": ["savings", "investment"],
+            "payload": {
+              "title": "Fondo de emergencia",
+              "body": "Procura tener ahorrados entre 3 y 6 meses de tus gastos fijos."
+            }
+          }
+        ]
+      },
+      "entrepreneur": {
+        "sections": [
+          { "id": "accounts", "type": "accounts_summary", "order": 0, "payload": {} },
+          {
+            "id": "quick_actions",
+            "type": "quick_actions",
+            "order": 1,
+            "payload": {
+              "items": [
+                { "id": "fx", "label": "Divisas", "icon": "currency_exchange", "route": "/fx", "flag": "fx_service" },
+                { "id": "profile", "label": "Mi perfil", "icon": "person", "route": "/profile" }
+              ]
+            }
+          },
+          {
+            "id": "entrepreneur_banner",
+            "type": "banner",
+            "order": 2,
+            "payload": {
+              "title": "Impulsa tu negocio",
+              "subtitle": "Herramientas financieras para emprendedores.",
+              "color": "#7C2D12",
+              "route": "/offers/biz_credit"
+            }
+          },
+          {
+            "id": "entrepreneur_offers",
+            "type": "offer_carousel",
+            "order": 3,
+            "flag": "offers",
+            "interests": ["business", "investment", "savings"],
+            "payload": {
+              "items": [
+                { "id": "biz_credit", "title": "Crédito para tu negocio", "description": "Capital de trabajo con cuotas flexibles.", "interests": ["business"], "route": "/offers/biz_credit" },
+                { "id": "biz_invest", "title": "Invierte tus excedentes", "description": "Haz rendir el dinero que tu negocio no usa.", "interests": ["investment"], "route": "/offers/biz_invest" },
+                { "id": "biz_savings", "title": "Separa tus finanzas", "description": "Una cuenta de ahorro solo para tu negocio.", "interests": ["savings", "business"], "route": "/offers/biz_savings" }
+              ]
+            }
+          },
+          {
+            "id": "tip_business",
+            "type": "tip",
+            "order": 4,
+            "interests": ["business"],
+            "payload": {
+              "title": "Separa tus cuentas",
+              "body": "Mantener separados los gastos personales y del negocio facilita tu contabilidad."
+            }
+          }
+        ]
+      }
+    }
+  },
+  "feature_flags": {
+    "schemaVersion": 1,
+    "flags": {
+      "fx_service": { "enabled": true, "segments": [] },
+      "offers": { "enabled": true, "segments": ["student", "professional", "entrepreneur"] },
+      "push_opt_in_prompt": { "enabled": true, "segments": [] },
+      "demo_fault_panel": { "enabled": false, "segments": [] }
+    }
+  },
+  "onboarding_seed": {
+    "schemaVersion": 1,
+    "account": { "type": "savings", "initialBalanceCents": 125000 },
+    "movements": [
+      { "description": "Depósito de apertura", "amountCents": 100000, "type": "credit", "daysAgo": 10 },
+      { "description": "Transferencia recibida", "amountCents": 40000, "type": "credit", "daysAgo": 6 },
+      { "description": "Supermercado", "amountCents": 15000, "type": "debit", "daysAgo": 3 }
+    ]
+  },
+  "fx_config": {
+    "schemaVersion": 1,
+    "baseUrl": "https://api.frankfurter.dev/v1",
+    "base": "USD",
+    "symbols": ["EUR", "MXN", "BRL", "GBP", "JPY", "CAD", "CNY"],
+    "timeoutMs": 8000
+  },
+  "terms": {
+    "schemaVersion": 1,
+    "version": "2026-10",
+    "url": "https://alanbarco.github.io/banca-movil/terms.html"
+  }
+}
