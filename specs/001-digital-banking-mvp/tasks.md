@@ -149,25 +149,25 @@ en tiempo real y datos de caché con indicador.
 
 ### Tests for User Story 2
 
-- [ ] T066 [P] [US2] Test de entidades en `test/features/accounts/domain/account_test.dart` (`maskedNumber` = `•••• ` + últimos 4; `Movement.isCredit`)
-- [ ] T067 [P] [US2] Test de `AccountsRepositoryImpl` en `test/features/accounts/data/accounts_repository_impl_test.dart` con `fake_cloud_firestore` (orden `date` desc, `limit(20)`, paginación con `startAfterDocument`, `isStale` según metadata, `lastSyncedAt` guardado)
-- [ ] T068 [P] [US2] Test de `AccountsCubit` en `test/features/accounts/presentation/bloc/accounts_cubit_test.dart` (loading → success / stale / empty / failure → retry; evento `stale_data_shown` y `data_load_error`)
-- [ ] T069 [P] [US2] Test de `MovementsBloc` en `test/features/accounts/presentation/bloc/movements_bloc_test.dart` (primera página en vivo, `loadMore`, fin de lista, nuevo movimiento entrante)
-- [ ] T070 [P] [US2] Widget test en `test/features/accounts/presentation/pages/account_detail_page_test.dart` (skeleton, lista, vacío, error con reintento, banner de datos desactualizados, saldos ocultos)
+- [X] T066 [P] [US2] Test de entidades en `test/features/accounts/domain/account_test.dart` (`maskedNumber` = `•••• ` + últimos 4; `Movement.isCredit`)
+- [X] T067 [P] [US2] Test de `AccountsRepositoryImpl` en `test/features/accounts/data/accounts_repository_impl_test.dart` con `fake_cloud_firestore` (orden `date` desc, `limit(20)`, paginación con `startAfterDocument`, `isStale` según metadata, `lastSyncedAt` guardado)
+- [X] T068 [P] [US2] Test de `AccountsCubit` en `test/features/accounts/presentation/bloc/accounts_cubit_test.dart` (loading → success / stale / empty / failure → retry; evento `stale_data_shown` y `data_load_error`)
+- [X] T069 [P] [US2] Test de `MovementsBloc` en `test/features/accounts/presentation/bloc/movements_bloc_test.dart` (primera página en vivo, `loadMore`, fin de lista, nuevo movimiento entrante)
+- [X] T070 [P] [US2] Widget test en `test/features/accounts/presentation/pages/account_detail_page_test.dart` (skeleton, lista, vacío, error con reintento, banner de datos desactualizados, saldos ocultos)
 
 ### Implementation for User Story 2
 
-- [ ] T071 [P] [US2] Crear entidades `Account` (`type` `savings|checking`, `number` 10 dígitos, `currency` `USD`, `balanceCents` ≥ 0, `openedAt`, `updatedAt`, `maskedNumber`) y `Movement` (`date`, `description` 1–60, `amountCents` > 0, `type` `credit|debit`, `balanceAfterCents`) en `lib/features/accounts/domain/entities/`
-- [ ] T072 [US2] Crear contrato `AccountsRepository` (`watchAccounts(uid)`, `watchAccount(uid, accountId)`, `watchRecentMovements(uid, accountId)`, `fetchMoreMovements(uid, accountId, after)`) devolviendo `Result<DataSnapshot<…>>` en `lib/features/accounts/domain/repositories/accounts_repository.dart` y casos de uso en `lib/features/accounts/domain/usecases/`
-- [ ] T073 [P] [US2] Crear modelos `AccountModel`/`MovementModel` en `lib/features/accounts/data/models/`
-- [ ] T074 [US2] Crear `AccountsFirestoreDatasource` (`snapshots(includeMetadataChanges: true)`, ruta `users/{uid}/accounts/{accountId}/movements`, `orderBy('date', descending: true).limit(20)`) en `lib/features/accounts/data/datasources/accounts_firestore_datasource.dart` y `LastSyncStore` en `lib/features/accounts/data/datasources/last_sync_store.dart`
-- [ ] T075 [US2] Implementar `AccountsRepositoryImpl` envuelto con `streamWithFaults(FaultTarget.firestore, …)` en `lib/features/accounts/data/repositories/accounts_repository_impl.dart`
-- [ ] T076 [P] [US2] Crear `AccountsCubit` en `lib/features/accounts/presentation/bloc/accounts_cubit.dart` y `MovementsBloc` en `lib/features/accounts/presentation/bloc/movements_bloc.dart` (obtienen `uid` de `CurrentUserProfile`)
-- [ ] T077 [P] [US2] Crear widgets `account_card.dart` (tipo, `maskedNumber`, `MoneyText`, `Semantics` completo) y `movement_tile.dart` (ingreso/egreso con ícono + signo, no solo color) en `lib/features/accounts/presentation/widgets/`
-- [ ] T078 [US2] Crear `accounts_summary_section.dart` (lista de cuentas + toggle ocultar saldos) en `lib/features/accounts/presentation/widgets/` y registrarlo como tipo `accounts_summary` en `SectionRegistry` desde `lib/features/accounts/accounts_module.dart`
-- [ ] T079 [US2] Crear `lib/features/accounts/presentation/pages/account_detail_page.dart` (encabezado con saldo, lista paginada, estados de carga/vacío/error/stale) y `lib/features/accounts/accounts_routes.dart` (`/accounts/:accountId`)
-- [ ] T080 [US2] Crear `HomePage` interina en `lib/features/personalization/presentation/pages/home_page.dart` que renderiza la sección `accounts_summary` vía `SectionRegistry` y registrar `/home` en `lib/features/personalization/personalization_routes.dart` (se reemplaza en US3)
-- [ ] T081 [US2] Crear E2E en `integration_test/critical_flow_test.dart`: registra `e2e+<timestamp>@<dominio de prueba>` → completa onboarding → ve cuenta con saldo en inicio → abre detalle → ve ≥ 3 movimientos (SC-012)
+- [X] T071 [P] [US2] Crear entidades `Account` (`type` `savings|checking`, `number` 10 dígitos, `currency` `USD`, `balanceCents` ≥ 0, `openedAt`, `updatedAt`, `maskedNumber`) y `Movement` (`date`, `description` 1–60, `amountCents` > 0, `type` `credit|debit`, `balanceAfterCents`) en `lib/features/accounts/domain/entities/`
+- [X] T072 [US2] Crear contrato `AccountsRepository` (`watchAccounts(uid)`, `watchAccount(uid, accountId)`, `watchRecentMovements(uid, accountId)`, `fetchMoreMovements(uid, accountId, after)`) devolviendo `Result<DataSnapshot<…>>` en `lib/features/accounts/domain/repositories/accounts_repository.dart` y casos de uso en `lib/features/accounts/domain/usecases/`
+- [X] T073 [P] [US2] Crear modelos `AccountModel`/`MovementModel` en `lib/features/accounts/data/models/`
+- [X] T074 [US2] Crear `AccountsFirestoreDatasource` (`snapshots(includeMetadataChanges: true)`, ruta `users/{uid}/accounts/{accountId}/movements`, `orderBy('date', descending: true).limit(20)`) en `lib/features/accounts/data/datasources/accounts_firestore_datasource.dart` y `LastSyncStore` en `lib/features/accounts/data/datasources/last_sync_store.dart`
+- [X] T075 [US2] Implementar `AccountsRepositoryImpl` envuelto con `streamWithFaults(FaultTarget.firestore, …)` en `lib/features/accounts/data/repositories/accounts_repository_impl.dart`
+- [X] T076 [P] [US2] Crear `AccountsCubit` en `lib/features/accounts/presentation/bloc/accounts_cubit.dart` y `MovementsBloc` en `lib/features/accounts/presentation/bloc/movements_bloc.dart` (obtienen `uid` de `CurrentUserProfile`)
+- [X] T077 [P] [US2] Crear widgets `account_card.dart` (tipo, `maskedNumber`, `MoneyText`, `Semantics` completo) y `movement_tile.dart` (ingreso/egreso con ícono + signo, no solo color) en `lib/features/accounts/presentation/widgets/`
+- [X] T078 [US2] Crear `accounts_summary_section.dart` (lista de cuentas + toggle ocultar saldos) en `lib/features/accounts/presentation/widgets/` y registrarlo como tipo `accounts_summary` en `SectionRegistry` desde `lib/features/accounts/accounts_module.dart`
+- [X] T079 [US2] Crear `lib/features/accounts/presentation/pages/account_detail_page.dart` (encabezado con saldo, lista paginada, estados de carga/vacío/error/stale) y `lib/features/accounts/accounts_routes.dart` (`/accounts/:accountId`)
+- [X] T080 [US2] Crear `HomePage` interina en `lib/features/personalization/presentation/pages/home_page.dart` que renderiza la sección `accounts_summary` vía `SectionRegistry` y registrar `/home` en `lib/features/personalization/personalization_routes.dart` (se reemplaza en US3)
+- [X] T081 [US2] Crear E2E en `integration_test/critical_flow_test.dart`: registra `e2e+<timestamp>@<dominio de prueba>` → completa onboarding → ve cuenta con saldo en inicio → abre detalle → ve ≥ 3 movimientos (SC-012)
 
 **Checkpoint**: Flujo crítico registro → cuentas → movimientos funcionando y automatizado.
 
