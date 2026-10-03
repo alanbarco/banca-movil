@@ -1,0 +1,69 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:go_router/go_router.dart';
+
+import '../core/routing/app_routes.dart';
+import '../core/session/session_timeout_service.dart';
+import 'feature_module.dart';
+import 'not_found_page.dart';
+import 'route_guard.dart';
+import 'shell/app_shell.dart';
+import 'splash_page.dart';
+
+/// Compone las rutas de las features bajo `/splash` y el shell de pestañas.
+GoRouter createRouter({
+  required RouteGuard guard,
+  required SessionTimeoutService sessionTimeout,
+  required List<FeatureModule> modules,
+  List<Stream<Object?>> refreshOn = const [],
+  String? Function()? splashDebugInfo,
+  String initialLocation = AppRoutes.splash,
+}) {
+  final shellRoutes = [for (final m in modules) ...m.shellRoutes];
+  final destinations = AppShell.destinationsFor(shellRoutes);
+
+  return GoRouter(
+    initialLocation: initialLocation,
+    refreshListenable: StreamListenable(refreshOn),
+    redirect: (context, state) => guard.redirect(state.uri),
+    errorBuilder: (context, state) => const NotFoundPage(),
+    routes: [
+      GoRoute(
+        path: AppRoutes.splash,
+        builder: (context, state) =>
+            SplashPage(debugInfo: kDebugMode ? splashDebugInfo?.call() : null),
+      ),
+      for (final module in modules) ...module.routes,
+      if (shellRoutes.isNotEmpty)
+        ShellRoute(
+          builder: (context, state, child) => AppShell(
+            location: state.uri.path,
+            destinations: destinations,
+            sessionTimeout: sessionTimeout,
+            child: child,
+          ),
+          routes: shellRoutes,
+        ),
+    ],
+  );
+}
+
+/// Re-evalúa el `redirect` cuando cambia la sesión o los flags.
+class StreamListenable extends ChangeNotifier {
+  StreamListenable(List<Stream<Object?>> streams) {
+    for (final stream in streams) {
+      _subscriptions.add(stream.listen((_) => notifyListeners()));
+    }
+  }
+
+  final List<StreamSubscription<Object?>> _subscriptions = [];
+
+  @override
+  void dispose() {
+    for (final subscription in _subscriptions) {
+      unawaited(subscription.cancel());
+    }
+    super.dispose();
+  }
+}
