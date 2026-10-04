@@ -2,15 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/ui/theme.dart';
+import '../../domain/entities/interest.dart';
+import '../../domain/usecases/update_interests.dart';
 import '../auth_texts.dart';
 import '../bloc/auth_bloc.dart';
+import '../widgets/edit_interests_sheet.dart';
 
-/// Datos del cliente y cierre de sesión. Las secciones de intereses y
-/// notificaciones se completan en US3 y US5.
+/// Datos del cliente, intereses editables (FR-018) y cierre de sesión. La
+/// sección de notificaciones se completa en US5.
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({required this.authBloc, super.key});
+  const ProfilePage({
+    required this.authBloc,
+    required this.updateInterests,
+    super.key,
+  });
 
   final AuthBloc authBloc;
+  final UpdateInterests updateInterests;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +58,22 @@ class ProfilePage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Intereses', style: theme.textTheme.titleMedium),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Intereses',
+                            style: theme.textTheme.titleMedium,
+                          ),
+                        ),
+                        TextButton.icon(
+                          onPressed: () =>
+                              _editInterests(context, profile.interests),
+                          icon: const Icon(Icons.edit_outlined),
+                          label: const Text('Editar'),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
@@ -82,5 +105,20 @@ class ProfilePage extends StatelessWidget {
         },
       ),
     );
+  }
+
+  Future<void> _editInterests(
+    BuildContext context,
+    List<Interest> current,
+  ) async {
+    final saved = await EditInterestsSheet.show(
+      context,
+      initial: current,
+      onSave: updateInterests.call,
+    );
+    if (saved != true || !context.mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Intereses actualizados.')));
   }
 }

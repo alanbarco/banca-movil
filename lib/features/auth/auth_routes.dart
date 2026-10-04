@@ -8,6 +8,7 @@ import 'data/datasources/onboarding_seed_datasource.dart';
 import 'domain/usecases/register_customer.dart';
 import 'domain/usecases/send_password_reset.dart';
 import 'domain/usecases/sign_in.dart';
+import 'domain/usecases/update_interests.dart';
 import 'presentation/bloc/auth_bloc.dart';
 import 'presentation/bloc/forgot_password_cubit.dart';
 import 'presentation/bloc/login_cubit.dart';
@@ -63,6 +64,9 @@ List<RouteBase> authRoutes() => [
 List<RouteBase> authShellRoutes() => [
   GoRoute(
     path: AppRoutes.profile,
-    builder: (context, state) => ProfilePage(authBloc: _getIt<AuthBloc>()),
+    builder: (context, state) => ProfilePage(
+      authBloc: _getIt<AuthBloc>(),
+      updateInterests: _getIt<UpdateInterests>(),
+    ),
   ),
 ];

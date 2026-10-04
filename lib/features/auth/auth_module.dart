@@ -16,6 +16,7 @@ import 'domain/usecases/register_customer.dart';
 import 'domain/usecases/send_password_reset.dart';
 import 'domain/usecases/sign_in.dart';
 import 'domain/usecases/sign_out.dart';
+import 'domain/usecases/update_interests.dart';
 import 'domain/usecases/watch_auth_state.dart';
 import 'presentation/bloc/auth_bloc.dart';
 
@@ -53,6 +54,7 @@ class AuthModule extends FeatureModule {
       ..registerLazySingleton(() => RegisterCustomer(getIt()))
       ..registerLazySingleton(() => SendPasswordReset(getIt()))
       ..registerLazySingleton(() => WatchAuthState(getIt()))
+      ..registerLazySingleton(() => UpdateInterests(getIt()))
       ..registerLazySingleton(
         () => AuthBloc(
           watchAuthState: getIt(),
