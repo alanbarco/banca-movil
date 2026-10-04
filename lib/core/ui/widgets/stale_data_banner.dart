@@ -5,19 +5,31 @@ import '../theme.dart';
 
 /// Aviso de datos desde caché (estado `stale`, FR-028).
 class StaleDataBanner extends StatelessWidget {
-  const StaleDataBanner({this.lastSyncedAt, super.key});
+  const StaleDataBanner({
+    this.lastSyncedAt,
+    this.cause = defaultCause,
+    super.key,
+  });
+
+  static const defaultCause = 'Sin conexión';
 
   final DateTime? lastSyncedAt;
 
-  static String messageFor(DateTime? lastSyncedAt) {
-    if (lastSyncedAt == null) return 'Sin conexión · mostrando datos guardados';
+  /// Por qué no hay datos frescos (p. ej. un servicio externo caído).
+  final String cause;
+
+  static String messageFor(
+    DateTime? lastSyncedAt, {
+    String cause = defaultCause,
+  }) {
+    if (lastSyncedAt == null) return '$cause · mostrando datos guardados';
     final time = DateFormat('HH:mm').format(lastSyncedAt.toLocal());
-    return 'Sin conexión · actualizado a las $time';
+    return '$cause · actualizado a las $time';
   }
 
   @override
   Widget build(BuildContext context) {
-    final message = messageFor(lastSyncedAt);
+    final message = messageFor(lastSyncedAt, cause: cause);
     return Semantics(
       container: true,
       liveRegion: true,
