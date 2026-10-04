@@ -17,12 +17,12 @@ class BiApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final faults = sl<FaultInjectionCubit>();
+    final faults = getIt<FaultInjectionCubit>();
     return MultiBlocProvider(
       providers: [
         BlocProvider.value(value: faults),
-        BlocProvider.value(value: sl<ConnectivityCubit>()),
-        BlocProvider(create: (_) => BalanceVisibilityCubit(sl())),
+        BlocProvider.value(value: getIt<ConnectivityCubit>()),
+        BlocProvider(create: (_) => BalanceVisibilityCubit(getIt())),
       ],
       child: MaterialApp.router(
         title: 'BI App',

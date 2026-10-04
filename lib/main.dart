@@ -62,13 +62,13 @@ Future<void> _configureFirestore(LocalStorage storage) async {
   }
 }
 
-String? _currentSegment() => sl.isRegistered<CurrentUserProfile>()
-    ? sl<CurrentUserProfile>().current?.segment
+String? _currentSegment() => getIt.isRegistered<CurrentUserProfile>()
+    ? getIt<CurrentUserProfile>().current?.segment
     : null;
 
 GoRouter _buildRouter(RemoteConfigService remoteConfig) {
-  final session = sl<SessionStatusSource>();
-  final flags = sl<FeatureFlagService>();
+  final session = getIt<SessionStatusSource>();
+  final flags = getIt<FeatureFlagService>();
   return createRouter(
     guard: RouteGuard(
       session: session,
@@ -76,7 +76,7 @@ GoRouter _buildRouter(RemoteConfigService remoteConfig) {
       currentSegment: _currentSegment,
       demoTools: AppConfig.demoTools,
     ),
-    sessionTimeout: sl<SessionTimeoutService>(),
+    sessionTimeout: getIt<SessionTimeoutService>(),
     modules: featureModules,
     refreshOn: [session.changes, flags.changes],
     splashDebugInfo: () => _configSummary(remoteConfig),

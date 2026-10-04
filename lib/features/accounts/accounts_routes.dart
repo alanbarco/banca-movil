@@ -7,7 +7,7 @@ import 'presentation/bloc/account_detail_cubit.dart';
 import 'presentation/bloc/movements_bloc.dart';
 import 'presentation/pages/account_detail_page.dart';
 
-final _sl = GetIt.instance;
+final _getIt = GetIt.instance;
 
 /// `/accounts/:accountId`. Va dentro del shell para que la actividad en el
 /// detalle también reinicie el temporizador de inactividad (FR-007).
@@ -19,11 +19,12 @@ List<RouteBase> accountsShellRoutes() => [
       return MultiBlocProvider(
         providers: [
           BlocProvider(
-            create: (_) => _sl<AccountDetailCubit>(param1: accountId)..start(),
+            create: (_) =>
+                _getIt<AccountDetailCubit>(param1: accountId)..start(),
           ),
           BlocProvider(
             create: (_) =>
-                _sl<MovementsBloc>(param1: accountId)
+                _getIt<MovementsBloc>(param1: accountId)
                   ..add(const MovementsStarted()),
           ),
         ],

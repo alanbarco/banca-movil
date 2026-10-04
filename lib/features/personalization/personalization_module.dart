@@ -8,7 +8,7 @@ class PersonalizationModule extends FeatureModule {
   const PersonalizationModule();
 
   @override
-  void register(GetIt sl) {}
+  void register(GetIt getIt) {}
 
   @override
   List<RouteBase> get shellRoutes => personalizationShellRoutes();

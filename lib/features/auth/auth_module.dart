@@ -23,8 +23,8 @@ class AuthModule extends FeatureModule {
   const AuthModule();
 
   @override
-  void register(GetIt sl) {
-    sl
+  void register(GetIt getIt) {
+    getIt
       ..registerLazySingleton(FirebaseAuthDatasource.new)
       ..registerLazySingleton(
         () => UserProfileDatasource(FirebaseFirestore.instance),
@@ -32,37 +32,37 @@ class AuthModule extends FeatureModule {
       ..registerLazySingleton(
         () => CustomerProvisioningDatasource(FirebaseFirestore.instance),
       )
-      ..registerLazySingleton(() => OnboardingSeedDatasource(sl()))
+      ..registerLazySingleton(() => OnboardingSeedDatasource(getIt()))
       ..registerLazySingleton(
         () => AuthRepositoryImpl(
-          auth: sl(),
-          profiles: sl(),
-          provisioning: sl(),
-          seeds: sl(),
-          sessionEvents: sl(),
-          observability: sl(),
+          auth: getIt(),
+          profiles: getIt(),
+          provisioning: getIt(),
+          seeds: getIt(),
+          sessionEvents: getIt(),
+          observability: getIt(),
         ),
       )
       // Una sola instancia expuesta con dos contratos.
-      ..registerLazySingleton<AuthRepository>(() => sl<AuthRepositoryImpl>())
+      ..registerLazySingleton<AuthRepository>(() => getIt<AuthRepositoryImpl>())
       ..registerLazySingleton<CurrentUserProfile>(
-        () => sl<AuthRepositoryImpl>(),
+        () => getIt<AuthRepositoryImpl>(),
       )
-      ..registerLazySingleton(() => SignIn(sl()))
-      ..registerLazySingleton(() => SignOut(sl()))
-      ..registerLazySingleton(() => RegisterCustomer(sl()))
-      ..registerLazySingleton(() => SendPasswordReset(sl()))
-      ..registerLazySingleton(() => WatchAuthState(sl()))
+      ..registerLazySingleton(() => SignIn(getIt()))
+      ..registerLazySingleton(() => SignOut(getIt()))
+      ..registerLazySingleton(() => RegisterCustomer(getIt()))
+      ..registerLazySingleton(() => SendPasswordReset(getIt()))
+      ..registerLazySingleton(() => WatchAuthState(getIt()))
       ..registerLazySingleton(
         () => AuthBloc(
-          watchAuthState: sl(),
-          signOut: sl(),
-          sessionTimeout: sl(),
-          storage: sl(),
-          observability: sl(),
+          watchAuthState: getIt(),
+          signOut: getIt(),
+          sessionTimeout: getIt(),
+          storage: getIt(),
+          observability: getIt(),
         ),
       )
-      ..registerLazySingleton<SessionStatusSource>(() => sl<AuthBloc>());
+      ..registerLazySingleton<SessionStatusSource>(() => getIt<AuthBloc>());
   }
 
   @override

@@ -24,56 +24,56 @@ class AccountsModule extends FeatureModule {
   const AccountsModule();
 
   @override
-  void register(GetIt sl) {
-    sl
+  void register(GetIt getIt) {
+    getIt
       ..registerLazySingleton(
         () => AccountsFirestoreDatasource(FirebaseFirestore.instance),
       )
-      ..registerLazySingleton(() => LastSyncStore(sl()))
+      ..registerLazySingleton(() => LastSyncStore(getIt()))
       ..registerLazySingleton<AccountsRepository>(
         () => AccountsRepositoryImpl(
-          datasource: sl(),
-          lastSync: sl(),
-          faults: sl(),
-          observability: sl(),
+          datasource: getIt(),
+          lastSync: getIt(),
+          faults: getIt(),
+          observability: getIt(),
         ),
       )
-      ..registerLazySingleton(() => WatchAccounts(sl()))
-      ..registerLazySingleton(() => WatchAccount(sl()))
-      ..registerLazySingleton(() => WatchRecentMovements(sl()))
-      ..registerLazySingleton(() => FetchMoreMovements(sl()))
+      ..registerLazySingleton(() => WatchAccounts(getIt()))
+      ..registerLazySingleton(() => WatchAccount(getIt()))
+      ..registerLazySingleton(() => WatchRecentMovements(getIt()))
+      ..registerLazySingleton(() => FetchMoreMovements(getIt()))
       ..registerFactory(
         () => AccountsCubit(
-          watchAccounts: sl(),
-          currentUser: sl(),
-          connectivity: sl(),
-          observability: sl(),
+          watchAccounts: getIt(),
+          currentUser: getIt(),
+          connectivity: getIt(),
+          observability: getIt(),
         ),
       )
       ..registerFactoryParam<AccountDetailCubit, String, void>(
         (accountId, _) => AccountDetailCubit(
           accountId: accountId,
-          watchAccount: sl(),
-          currentUser: sl(),
-          connectivity: sl(),
-          observability: sl(),
+          watchAccount: getIt(),
+          currentUser: getIt(),
+          connectivity: getIt(),
+          observability: getIt(),
         ),
       )
       ..registerFactoryParam<MovementsBloc, String, void>(
         (accountId, _) => MovementsBloc(
           accountId: accountId,
-          watchRecentMovements: sl(),
-          fetchMoreMovements: sl(),
-          currentUser: sl(),
-          connectivity: sl(),
-          observability: sl(),
+          watchRecentMovements: getIt(),
+          fetchMoreMovements: getIt(),
+          currentUser: getIt(),
+          connectivity: getIt(),
+          observability: getIt(),
         ),
       );
 
-    sl<SectionRegistry>().register(
+    getIt<SectionRegistry>().register(
       HomeSectionType.accountsSummary,
       (context, section) => BlocProvider(
-        create: (_) => sl<AccountsCubit>()..start(),
+        create: (_) => getIt<AccountsCubit>()..start(),
         child: const AccountsSummarySection(),
       ),
     );

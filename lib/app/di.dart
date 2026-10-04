@@ -27,7 +27,7 @@ import '../features/auth/auth_module.dart';
 import '../features/personalization/personalization_module.dart';
 import 'app_config.dart';
 
-final sl = GetIt.instance;
+final getIt = GetIt.instance;
 
 /// Módulos de las features, en orden de registro. Cada historia agrega el
 /// suyo (US1: auth, US2: accounts, US3: personalization, …).
@@ -46,14 +46,14 @@ void configureDependencies({
   FirebaseFirestore? firestore,
   List<FeatureModule> modules = featureModules,
 }) {
-  sl
+  getIt
     ..registerSingleton<LocalStorage>(storage)
     ..registerSingleton<ObservabilityService>(observability)
     ..registerSingleton<RemoteConfigService>(remoteConfig)
     ..registerLazySingleton<FeatureFlagService>(
       () => RemoteConfigFeatureFlagService(
-        remoteConfig: sl(),
-        observability: sl(),
+        remoteConfig: getIt(),
+        observability: getIt(),
       ),
     )
     ..registerLazySingleton<SectionRegistry>(SectionRegistry.new)
@@ -67,32 +67,34 @@ void configureDependencies({
     ..registerLazySingleton<ConnectivityCubit>(() {
       final cubit = ConnectivityCubit(
         connectivity: Connectivity(),
-        observability: sl(),
-        forcedOfflineChanges: sl<FaultInjectionCubit>().stream
+        observability: getIt(),
+        forcedOfflineChanges: getIt<FaultInjectionCubit>().stream
             .map((state) => state.forcedOffline)
             .distinct(),
       );
       unawaited(cubit.start());
       return cubit;
     })
-    ..registerLazySingleton<ConnectivityStatus>(() => sl<ConnectivityCubit>())
+    ..registerLazySingleton<ConnectivityStatus>(
+      () => getIt<ConnectivityCubit>(),
+    )
     // El simulador solo se conecta a datos y red en builds de demo.
     ..registerLazySingleton<FaultRunner>(
       () => FaultRunner(
-        AppConfig.demoTools ? sl<FaultInjectionCubit>() : const NoFaults(),
+        AppConfig.demoTools ? getIt<FaultInjectionCubit>() : const NoFaults(),
       ),
     )
     ..registerLazySingleton<DioFactory>(
       () => DioFactory(
-        faults: AppConfig.demoTools ? sl<FaultInjectionCubit>() : null,
+        faults: AppConfig.demoTools ? getIt<FaultInjectionCubit>() : null,
       ),
     );
 
   registerFeatures(modules);
 
   // Hasta que `auth` (US1) registre la suya, la sesión queda sin resolver.
-  if (!sl.isRegistered<SessionStatusSource>()) {
-    sl.registerSingleton<SessionStatusSource>(
+  if (!getIt.isRegistered<SessionStatusSource>()) {
+    getIt.registerSingleton<SessionStatusSource>(
       const UnresolvedSessionStatusSource(),
     );
   }
@@ -100,6 +102,6 @@ void configureDependencies({
 
 void registerFeatures(List<FeatureModule> modules) {
   for (final module in modules) {
-    module.register(sl);
+    module.register(getIt);
   }
 }

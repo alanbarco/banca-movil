@@ -17,7 +17,7 @@ import 'presentation/pages/login_page.dart';
 import 'presentation/pages/profile_page.dart';
 import 'presentation/pages/register_page.dart';
 
-final _sl = GetIt.instance;
+final _getIt = GetIt.instance;
 
 /// `/login`, `/register`, `/forgot-password` (fuera del shell).
 List<RouteBase> authRoutes() => [
@@ -25,9 +25,9 @@ List<RouteBase> authRoutes() => [
     path: AppRoutes.login,
     builder: (context, state) => BlocProvider(
       create: (_) => LoginCubit(
-        signIn: _sl<SignIn>(),
-        observability: _sl<ObservabilityService>(),
-        initialEmail: _sl<AuthBloc>().state.prefillEmail ?? '',
+        signIn: _getIt<SignIn>(),
+        observability: _getIt<ObservabilityService>(),
+        initialEmail: _getIt<AuthBloc>().state.prefillEmail ?? '',
       ),
       child: const LoginPage(),
     ),
@@ -35,14 +35,14 @@ List<RouteBase> authRoutes() => [
   GoRoute(
     path: AppRoutes.register,
     builder: (context, state) {
-      final terms = _sl<OnboardingSeedDatasource>().terms();
+      final terms = _getIt<OnboardingSeedDatasource>().terms();
       return BlocProvider(
         create: (_) => OnboardingCubit(
-          registerCustomer: _sl<RegisterCustomer>(),
-          observability: _sl<ObservabilityService>(),
+          registerCustomer: _getIt<RegisterCustomer>(),
+          observability: _getIt<ObservabilityService>(),
           termsVersion: terms.version,
           // Cuenta creada sin perfil: solo se completan los datos.
-          pendingEmail: _sl<AuthBloc>().state.pendingEmail,
+          pendingEmail: _getIt<AuthBloc>().state.pendingEmail,
         )..start(),
         child: RegisterPage(termsVersion: terms.version, termsUrl: terms.url),
       );
@@ -51,9 +51,9 @@ List<RouteBase> authRoutes() => [
   GoRoute(
     path: AppRoutes.forgotPassword,
     builder: (context, state) => BlocProvider(
-      create: (_) => ForgotPasswordCubit(_sl<SendPasswordReset>()),
+      create: (_) => ForgotPasswordCubit(_getIt<SendPasswordReset>()),
       child: ForgotPasswordPage(
-        initialEmail: _sl<AuthBloc>().state.prefillEmail ?? '',
+        initialEmail: _getIt<AuthBloc>().state.prefillEmail ?? '',
       ),
     ),
   ),
@@ -63,6 +63,6 @@ List<RouteBase> authRoutes() => [
 List<RouteBase> authShellRoutes() => [
   GoRoute(
     path: AppRoutes.profile,
-    builder: (context, state) => ProfilePage(authBloc: _sl<AuthBloc>()),
+    builder: (context, state) => ProfilePage(authBloc: _getIt<AuthBloc>()),
   ),
 ];

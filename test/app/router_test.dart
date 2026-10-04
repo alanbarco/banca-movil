@@ -42,7 +42,7 @@ class _FakeModule extends FeatureModule {
   const _FakeModule();
 
   @override
-  void register(GetIt sl) {}
+  void register(GetIt getIt) {}
 
   @override
   List<RouteBase> get routes => [

@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 abstract class FeatureModule {
   const FeatureModule();
 
-  void register(GetIt sl);
+  void register(GetIt getIt);
 
   /// Rutas a pantalla completa, fuera del shell (login, detalle de cuenta…).
   List<RouteBase> get routes => const [];
