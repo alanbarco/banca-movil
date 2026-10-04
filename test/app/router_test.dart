@@ -37,6 +37,22 @@ class _AllFlagsOn implements FeatureFlagService {
   Stream<void> get changes => const Stream.empty();
 }
 
+class _SwitchableFlags implements FeatureFlagService {
+  final off = <String>{};
+  final _changes = StreamController<void>.broadcast();
+
+  @override
+  bool isEnabled(String key, {String? segment}) => !off.contains(key);
+
+  @override
+  Stream<void> get changes => _changes.stream;
+
+  void set(String key, {required bool enabled}) {
+    enabled ? off.remove(key) : off.add(key);
+    _changes.add(null);
+  }
+}
+
 /// Feature falsa con las tres pestañas y una ruta pública.
 class _FakeModule extends FeatureModule {
   const _FakeModule();
@@ -147,6 +163,31 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('page /home'), findsOneWidget);
     expect(router.routerDelegate.currentConfiguration.uri.path, AppRoutes.home);
+  });
+
+  testWidgets('la pestaña Divisas sigue al flag fx_service en vivo', (
+    tester,
+  ) async {
+    final flags = _SwitchableFlags();
+    session.status = SessionStatus.authenticated;
+    final router = createRouter(
+      guard: RouteGuard(session: session, flags: flags),
+      sessionTimeout: timeout,
+      modules: const [_FakeModule()],
+      refreshOn: [session.changes, flags.changes],
+    );
+    await pump(tester, router);
+    await tester.pumpAndSettle();
+    expect(find.text('Divisas'), findsOneWidget);
+
+    flags.set('fx_service', enabled: false);
+    await tester.pumpAndSettle();
+    expect(find.text('Divisas'), findsNothing);
+    expect(find.text('Inicio'), findsOneWidget);
+
+    flags.set('fx_service', enabled: true);
+    await tester.pumpAndSettle();
+    expect(find.text('Divisas'), findsOneWidget);
   });
 
   testWidgets('ruta desconocida muestra la página de no encontrada', (

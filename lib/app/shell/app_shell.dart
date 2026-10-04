@@ -28,6 +28,8 @@ class AppShell extends StatelessWidget {
     required this.destinations,
     required this.sessionTimeout,
     required this.child,
+    this.isTabEnabled,
+    this.tabChanges,
     super.key,
   });
 
@@ -69,7 +71,19 @@ class AppShell extends StatelessWidget {
   final SessionTimeoutService sessionTimeout;
   final Widget child;
 
-  int get _selectedIndex {
+  /// Oculta pestañas cuyo flag está apagado para el cliente (p. ej. Divisas
+  /// con `fx_service`, escenario US3-3).
+  final bool Function(String path)? isTabEnabled;
+
+  /// Avisa cuando hay que volver a evaluar [isTabEnabled].
+  final Listenable? tabChanges;
+
+  List<ShellDestination> get _visible => [
+    for (final destination in destinations)
+      if (isTabEnabled?.call(destination.path) ?? true) destination,
+  ];
+
+  int _selectedIndex(List<ShellDestination> destinations) {
     final index = destinations.indexWhere(
       (d) => location == d.path || location.startsWith('${d.path}/'),
     );
@@ -83,23 +97,40 @@ class AppShell extends StatelessWidget {
       onPointerDown: (_) => sessionTimeout.registerInteraction(),
       child: Scaffold(
         body: child,
-        // NavigationBar exige al menos 2 destinos.
-        bottomNavigationBar: destinations.length < 2
-            ? null
-            : NavigationBar(
-                selectedIndex: _selectedIndex,
-                onDestinationSelected: (index) =>
-                    context.go(destinations[index].path),
-                destinations: [
-                  for (final d in destinations)
-                    NavigationDestination(
-                      icon: Icon(d.icon),
-                      selectedIcon: Icon(d.selectedIcon),
-                      label: d.label,
-                    ),
-                ],
-              ),
+        bottomNavigationBar: ListenableBuilder(
+          listenable: tabChanges ?? const _NoChanges(),
+          builder: (context, _) =>
+              _navigationBar(context) ?? const SizedBox.shrink(),
+        ),
       ),
     );
   }
+
+  Widget? _navigationBar(BuildContext context) {
+    final destinations = _visible;
+    // NavigationBar exige al menos 2 destinos.
+    if (destinations.length < 2) return null;
+    return NavigationBar(
+      selectedIndex: _selectedIndex(destinations),
+      onDestinationSelected: (index) => context.go(destinations[index].path),
+      destinations: [
+        for (final d in destinations)
+          NavigationDestination(
+            icon: Icon(d.icon),
+            selectedIcon: Icon(d.selectedIcon),
+            label: d.label,
+          ),
+      ],
+    );
+  }
+}
+
+class _NoChanges implements Listenable {
+  const _NoChanges();
+
+  @override
+  void addListener(VoidCallback listener) {}
+
+  @override
+  void removeListener(VoidCallback listener) {}
 }

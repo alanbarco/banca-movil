@@ -25,10 +25,11 @@ GoRouter createRouter({
 }) {
   final shellRoutes = [for (final m in modules) ...m.shellRoutes];
   final destinations = AppShell.destinationsFor(shellRoutes);
+  final refresh = StreamListenable(refreshOn);
 
   return GoRouter(
     initialLocation: initialLocation,
-    refreshListenable: StreamListenable(refreshOn),
+    refreshListenable: refresh,
     redirect: (context, state) {
       final target = guard.redirect(state.uri);
       _logger.debug('redirect', {
@@ -52,6 +53,9 @@ GoRouter createRouter({
             location: state.uri.path,
             destinations: destinations,
             sessionTimeout: sessionTimeout,
+            isTabEnabled: guard.isAllowedByFlags,
+            // El router no reconstruye el shell si la ruta no cambia.
+            tabChanges: refresh,
             child: child,
           ),
           routes: shellRoutes,
