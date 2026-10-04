@@ -24,6 +24,7 @@ import '../core/session/session_timeout_service.dart';
 import '../core/storage/local_storage.dart';
 import '../features/accounts/accounts_module.dart';
 import '../features/auth/auth_module.dart';
+import '../features/fx/fx_module.dart';
 import '../features/personalization/personalization_module.dart';
 import 'app_config.dart';
 
@@ -35,6 +36,7 @@ const featureModules = <FeatureModule>[
   AuthModule(),
   AccountsModule(),
   PersonalizationModule(),
+  FxModule(),
 ];
 
 /// Registra `core` y luego las features. Los servicios que requieren
