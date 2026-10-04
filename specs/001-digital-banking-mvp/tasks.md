@@ -209,17 +209,17 @@ edición de intereses.
 
 ### Tests for User Story 4
 
-- [ ] T093 [P] [US4] Test de `ConvertCurrency` en `test/features/fx/domain/convert_currency_test.dart` (USD→X, X→USD, X→Y; redondeo 2 decimales, JPY 0)
-- [ ] T094 [P] [US4] Test de `FxRepositoryImpl` en `test/features/fx/data/fx_repository_impl_test.dart` (éxito guarda caché; falla con caché → `isStale`; falla sin caché → `Failure`; `base` ≠ USD = inválida; emite `fx_service_failure` con `reason`)
-- [ ] T095 [P] [US4] Test de `FxCubit` en `test/features/fx/presentation/bloc/fx_cubit_test.dart` y widget test en `test/features/fx/presentation/pages/fx_page_test.dart` (tasas con fecha, conversión, stale + reintentar, error sin caché)
+- [X] T093 [P] [US4] Test de `ConvertCurrency` en `test/features/fx/domain/convert_currency_test.dart` (USD→X, X→USD, X→Y; redondeo 2 decimales, JPY 0)
+- [X] T094 [P] [US4] Test de `FxRepositoryImpl` en `test/features/fx/data/fx_repository_impl_test.dart` (éxito guarda caché; falla con caché → `isStale`; falla sin caché → `Failure`; `base` ≠ USD = inválida; emite `fx_service_failure` con `reason`)
+- [X] T095 [P] [US4] Test de `FxCubit` en `test/features/fx/presentation/bloc/fx_cubit_test.dart` y widget test en `test/features/fx/presentation/pages/fx_page_test.dart` (tasas con fecha, conversión, stale + reintentar, error sin caché)
 
 ### Implementation for User Story 4
 
-- [ ] T096 [P] [US4] Crear entidad `ExchangeRates` (`base`, `date`, `rates`, `fetchedAt`, `isStale`), contrato `FxRepository` y caso de uso `ConvertCurrency` en `lib/features/fx/domain/`
-- [ ] T097 [US4] Crear `FxRemoteDatasource` (GET `{baseUrl}/latest?base=USD&symbols=…` desde `fx_config`; verificar nombres de query params vigentes de Frankfurter) con `dio` + `RetryInterceptor` + `FaultInterceptor` en `lib/features/fx/data/datasources/fx_remote_datasource.dart` y `FxLocalCache` en `lib/features/fx/data/datasources/fx_local_cache.dart`
-- [ ] T098 [US4] Implementar `FxRepositoryImpl` en `lib/features/fx/data/repositories/fx_repository_impl.dart` según la política de `contracts/fx-external-api.md`
-- [ ] T099 [US4] Crear `FxCubit` en `lib/features/fx/presentation/bloc/fx_cubit.dart` y `lib/features/fx/presentation/pages/fx_page.dart` (lista de tasas con fecha, conversor con selector de divisas y tasa usada, banner stale, reintentar)
-- [ ] T100 [US4] Crear `lib/features/fx/fx_routes.dart` (`/fx`, flag `fx_service`) y `lib/features/fx/fx_module.dart`
+- [X] T096 [P] [US4] Crear entidad `ExchangeRates` (`base`, `date`, `rates`, `fetchedAt`, `isStale`), contrato `FxRepository` y caso de uso `ConvertCurrency` en `lib/features/fx/domain/`
+- [X] T097 [US4] Crear `FxRemoteDatasource` (GET `{baseUrl}/latest?base=USD&symbols=…` desde `fx_config`; verificar nombres de query params vigentes de Frankfurter) con `dio` + `RetryInterceptor` + `FaultInterceptor` en `lib/features/fx/data/datasources/fx_remote_datasource.dart` y `FxLocalCache` en `lib/features/fx/data/datasources/fx_local_cache.dart`
+- [X] T098 [US4] Implementar `FxRepositoryImpl` en `lib/features/fx/data/repositories/fx_repository_impl.dart` según la política de `contracts/fx-external-api.md`
+- [X] T099 [US4] Crear `FxCubit` en `lib/features/fx/presentation/bloc/fx_cubit.dart` y `lib/features/fx/presentation/pages/fx_page.dart` (lista de tasas con fecha, conversor con selector de divisas y tasa usada, banner stale, reintentar)
+- [X] T100 [US4] Crear `lib/features/fx/fx_routes.dart` (`/fx`, flag `fx_service`) y `lib/features/fx/fx_module.dart`
 
 **Checkpoint**: Divisas funciona; con FX en modo error, la app sigue operativa y muestra caché.
 
