@@ -1,55 +1,64 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/sdui/home_section.dart';
 import '../../../../core/sdui/section_registry.dart';
-import '../../../../core/session/current_user_profile.dart';
 import '../../../../core/ui/theme.dart';
+import '../../../../core/ui/widgets/empty_view.dart';
+import '../../../../core/ui/widgets/skeleton.dart';
+import '../bloc/home_layout_cubit.dart';
 
-/// Inicio interino de US2: saludo y la sección `accounts_summary` dibujada
-/// vía [SectionRegistry]. US3 lo reemplaza por el inicio SDUI completo
-/// (T089).
+/// Inicio SDUI: secciones definidas por el banco y dibujadas vía
+/// [SectionRegistry] (FR-014). Requiere un [HomeLayoutCubit].
 class HomePage extends StatelessWidget {
-  const HomePage({
-    required this.currentUser,
-    required this.sections,
-    super.key,
-  });
+  const HomePage({required this.sections, super.key});
 
-  final CurrentUserProfile currentUser;
   final SectionRegistry sections;
-
-  static const accountsSummary = HomeSection(
-    id: 'accounts_summary',
-    type: HomeSectionType.accountsSummary,
-    order: 0,
-  );
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Inicio')),
-      body: StreamBuilder<SessionUser?>(
-        stream: currentUser.user,
-        initialData: currentUser.current,
-        builder: (context, snapshot) {
-          final user = snapshot.data;
-          return ListView(
-            padding: const EdgeInsets.all(AppSizes.spacing),
-            children: [
-              Semantics(
-                header: true,
-                child: Text(
-                  'Bienvenido a BI App',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-              ),
-              if (user != null) ...[
-                const SizedBox(height: 8),
-                Text('Perfil: ${_segmentLabel(user.segment)}'),
+      body: BlocBuilder<HomeLayoutCubit, HomeLayoutState>(
+        builder: (context, state) {
+          if (state.loading) {
+            return const SkeletonList(
+              itemHeight: 112,
+              semanticsLabel: 'Cargando tu inicio',
+            );
+          }
+          final segment = state.segment;
+          return RefreshIndicator(
+            onRefresh: context.read<HomeLayoutCubit>().refresh,
+            child: ListView(
+              // Pull-to-refresh también con poco contenido.
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(AppSizes.spacing),
+              children: [
+                if (segment != null) ...[
+                  Text(
+                    'Perfil: ${segmentLabel(segment)}',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: AppSizes.spacing),
+                ],
+                if (state.sections.isEmpty)
+                  const EmptyView(
+                    message: 'Tu inicio no tiene contenido por ahora.',
+                  ),
+                for (final section in state.sections)
+                  Padding(
+                    // La clave conserva el estado de cada sección (p. ej. el
+                    // cubit de cuentas) aunque el banco las reordene.
+                    key: ValueKey(section.id),
+                    padding: const EdgeInsets.only(
+                      bottom: AppSizes.spacing * 1.5,
+                    ),
+                    child:
+                        sections.build(context, section) ??
+                        const SizedBox.shrink(),
+                  ),
               ],
-              const SizedBox(height: AppSizes.spacing * 1.5),
-              ?sections.build(context, accountsSummary),
-            ],
+            ),
           );
         },
       ),
@@ -58,7 +67,7 @@ class HomePage extends StatelessWidget {
 
   /// `segment` llega con el valor de Firestore; esta feature no depende de
   /// `auth`, así que la etiqueta se traduce aquí.
-  static String _segmentLabel(String segment) => switch (segment) {
+  static String segmentLabel(String segment) => switch (segment) {
     'student' => 'Joven / estudiante',
     'professional' => 'Profesional',
     'entrepreneur' => 'Emprendedor',
