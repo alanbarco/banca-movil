@@ -7,8 +7,7 @@ import 'package:bi_app/core/session/session_timeout_service.dart';
 import 'package:bi_app/core/storage/local_storage.dart';
 import 'package:bi_app/core/storage/storage_keys.dart';
 import 'package:bi_app/features/auth/domain/entities/auth_session.dart';
-import 'package:bi_app/features/auth/domain/usecases/sign_out.dart';
-import 'package:bi_app/features/auth/domain/usecases/watch_auth_state.dart';
+import 'package:bi_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:bi_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,15 +17,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../helpers/fake_observability.dart';
 import '../../auth_fixtures.dart';
 
-class _MockWatch extends Mock implements WatchAuthState {}
-
-class _MockSignOut extends Mock implements SignOut {}
+class _MockRepository extends Mock implements AuthRepository {}
 
 class _MockTimeout extends Mock implements SessionTimeoutService {}
 
 void main() {
-  late _MockWatch watch;
-  late _MockSignOut signOut;
+  late _MockRepository repository;
   late _MockTimeout timeout;
   late StreamController<AuthSession> sessions;
   late StreamController<void> timeouts;
@@ -36,15 +32,14 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     storage = await LocalStorage.create();
-    watch = _MockWatch();
-    signOut = _MockSignOut();
+    repository = _MockRepository();
     timeout = _MockTimeout();
     observability = FakeObservabilityService();
     sessions = StreamController<AuthSession>();
     timeouts = StreamController<void>();
-    when(() => watch()).thenAnswer((_) => sessions.stream);
+    when(() => repository.session).thenAnswer((_) => sessions.stream);
     when(() => timeout.timeouts).thenAnswer((_) => timeouts.stream);
-    when(() => signOut()).thenAnswer((_) async {
+    when(() => repository.signOut()).thenAnswer((_) async {
       sessions.add(const SignedOutSession());
       return const Success(null);
     });
@@ -56,8 +51,7 @@ void main() {
   });
 
   AuthBloc build() => AuthBloc(
-    watchAuthState: watch,
-    signOut: signOut,
+    repository: repository,
     sessionTimeout: timeout,
     storage: storage,
     observability: observability,
@@ -118,7 +112,7 @@ void main() {
       AuthState.unauthenticated(prefillEmail: 'ana@bi.test'),
     ],
     verify: (_) {
-      verify(() => signOut()).called(1);
+      verify(() => repository.signOut()).called(1);
       verify(() => timeout.stop()).called(greaterThanOrEqualTo(1));
       expect(storage.getBool(StorageKeys.pendingCacheClear), isTrue);
       expect(storage.getString(StorageKeys.lastSignedInEmail), 'ana@bi.test');
@@ -136,7 +130,7 @@ void main() {
     ],
     verify: (_) {
       expect(observability.named(AnalyticsEvents.sessionTimeout), hasLength(1));
-      verify(() => signOut()).called(1);
+      verify(() => repository.signOut()).called(1);
     },
   );
 
@@ -145,7 +139,7 @@ void main() {
     build: build,
     act: (_) => timeouts.add(null),
     expect: () => const <AuthState>[],
-    verify: (_) => verifyNever(() => signOut()),
+    verify: (_) => verifyNever(() => repository.signOut()),
   );
 
   test('changes emite solo cambios de estado de sesión', () async {

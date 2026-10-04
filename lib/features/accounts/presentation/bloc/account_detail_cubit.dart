@@ -3,27 +3,27 @@ import '../../../../core/data/load_status.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/error/result.dart';
 import '../../domain/entities/account.dart';
-import '../../domain/usecases/watch_account.dart';
+import '../../domain/repositories/accounts_repository.dart';
 import 'live_data_cubit.dart';
 
 /// Encabezado del detalle: la cuenta con su saldo en vivo (FR-012).
 class AccountDetailCubit extends LiveDataCubit<Account> {
   AccountDetailCubit({
     required this.accountId,
-    required WatchAccount watchAccount,
+    required AccountsRepository repository,
     required super.currentUser,
     required super.connectivity,
     required super.observability,
     super.staleGrace,
-  }) : _watchAccount = watchAccount,
+  }) : _repository = repository,
        super(feature: 'account_detail');
 
   final String accountId;
-  final WatchAccount _watchAccount;
+  final AccountsRepository _repository;
 
   @override
   Stream<Result<DataSnapshot<Account?>>> watch(String uid) =>
-      _watchAccount(uid, accountId);
+      _repository.watchAccount(uid, accountId);
 
   @override
   LoadState<Account> whenMissing() =>

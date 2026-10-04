@@ -7,8 +7,6 @@ import 'package:bi_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:bi_app/features/auth/domain/usecases/register_customer.dart';
 import 'package:bi_app/features/auth/domain/usecases/send_password_reset.dart';
 import 'package:bi_app/features/auth/domain/usecases/sign_in.dart';
-import 'package:bi_app/features/auth/domain/usecases/sign_out.dart';
-import 'package:bi_app/features/auth/domain/usecases/watch_auth_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -165,16 +163,6 @@ void main() {
       );
       expect((await reset(' ana@bi.test ')).isSuccess, isTrue);
       verify(() => repository.sendPasswordReset('ana@bi.test')).called(1);
-    });
-
-    test('SignOut y WatchAuthState delegan en el repositorio', () async {
-      when(
-        () => repository.signOut(),
-      ).thenAnswer((_) async => const Success(null));
-      when(() => repository.session).thenAnswer((_) => const Stream.empty());
-
-      expect((await SignOut(repository)()).isSuccess, isTrue);
-      expect(await WatchAuthState(repository)().isEmpty, isTrue);
     });
   });
 }

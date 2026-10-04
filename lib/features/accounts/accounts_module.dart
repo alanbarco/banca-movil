@@ -11,10 +11,6 @@ import 'data/datasources/accounts_firestore_datasource.dart';
 import 'data/datasources/last_sync_store.dart';
 import 'data/repositories/accounts_repository_impl.dart';
 import 'domain/repositories/accounts_repository.dart';
-import 'domain/usecases/fetch_more_movements.dart';
-import 'domain/usecases/watch_account.dart';
-import 'domain/usecases/watch_accounts.dart';
-import 'domain/usecases/watch_recent_movements.dart';
 import 'presentation/bloc/account_detail_cubit.dart';
 import 'presentation/bloc/accounts_cubit.dart';
 import 'presentation/bloc/movements_bloc.dart';
@@ -38,13 +34,9 @@ class AccountsModule extends FeatureModule {
           observability: getIt(),
         ),
       )
-      ..registerLazySingleton(() => WatchAccounts(getIt()))
-      ..registerLazySingleton(() => WatchAccount(getIt()))
-      ..registerLazySingleton(() => WatchRecentMovements(getIt()))
-      ..registerLazySingleton(() => FetchMoreMovements(getIt()))
       ..registerFactory(
         () => AccountsCubit(
-          watchAccounts: getIt(),
+          repository: getIt(),
           currentUser: getIt(),
           connectivity: getIt(),
           observability: getIt(),
@@ -53,7 +45,7 @@ class AccountsModule extends FeatureModule {
       ..registerFactoryParam<AccountDetailCubit, String, void>(
         (accountId, _) => AccountDetailCubit(
           accountId: accountId,
-          watchAccount: getIt(),
+          repository: getIt(),
           currentUser: getIt(),
           connectivity: getIt(),
           observability: getIt(),
@@ -62,8 +54,7 @@ class AccountsModule extends FeatureModule {
       ..registerFactoryParam<MovementsBloc, String, void>(
         (accountId, _) => MovementsBloc(
           accountId: accountId,
-          watchRecentMovements: getIt(),
-          fetchMoreMovements: getIt(),
+          repository: getIt(),
           currentUser: getIt(),
           connectivity: getIt(),
           observability: getIt(),

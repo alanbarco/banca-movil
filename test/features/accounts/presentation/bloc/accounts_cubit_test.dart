@@ -6,8 +6,7 @@ import 'package:bi_app/core/error/failure.dart';
 import 'package:bi_app/core/error/result.dart';
 import 'package:bi_app/core/observability/analytics_events.dart';
 import 'package:bi_app/features/accounts/domain/entities/account.dart';
-import 'package:bi_app/features/accounts/domain/usecases/watch_account.dart';
-import 'package:bi_app/features/accounts/domain/usecases/watch_accounts.dart';
+import 'package:bi_app/features/accounts/domain/repositories/accounts_repository.dart';
 import 'package:bi_app/features/accounts/presentation/bloc/account_detail_cubit.dart';
 import 'package:bi_app/features/accounts/presentation/bloc/accounts_cubit.dart';
 import 'package:bloc_test/bloc_test.dart';
@@ -18,15 +17,13 @@ import '../../../../helpers/fake_connectivity.dart';
 import '../../../../helpers/fake_observability.dart';
 import '../../accounts_fixtures.dart';
 
-class _MockWatchAccounts extends Mock implements WatchAccounts {}
-
-class _MockWatchAccount extends Mock implements WatchAccount {}
+class _MockRepository extends Mock implements AccountsRepository {}
 
 typedef _AccountsResult = Result<DataSnapshot<List<Account>>>;
 
 void main() {
   final synced = DateTime.utc(2026, 10, 3, 9);
-  late _MockWatchAccounts watchAccounts;
+  late _MockRepository repository;
   late StreamController<_AccountsResult> source;
   late FakeObservabilityService observability;
   late FakeCurrentUser currentUser;
@@ -42,18 +39,18 @@ void main() {
       );
 
   setUp(() {
-    watchAccounts = _MockWatchAccounts();
+    repository = _MockRepository();
     source = StreamController<_AccountsResult>.broadcast();
     observability = FakeObservabilityService();
     currentUser = FakeCurrentUser();
     connectivity = FakeConnectivity();
-    when(() => watchAccounts(uid)).thenAnswer((_) => source.stream);
+    when(() => repository.watchAccounts(uid)).thenAnswer((_) => source.stream);
   });
 
   tearDown(() => source.close());
 
   AccountsCubit build() => AccountsCubit(
-    watchAccounts: watchAccounts,
+    repository: repository,
     currentUser: currentUser,
     connectivity: connectivity,
     observability: observability,
@@ -210,24 +207,24 @@ void main() {
     expect: () => [
       const LoadState<List<Account>>.failure(Failure.unauthorized()),
     ],
-    verify: (_) => verifyNever(() => watchAccounts(any())),
+    verify: (_) => verifyNever(() => repository.watchAccounts(any())),
   );
 
   group('AccountDetailCubit', () {
-    late _MockWatchAccount watchAccount;
     late StreamController<Result<DataSnapshot<Account?>>> detail;
 
     setUp(() {
-      watchAccount = _MockWatchAccount();
       detail = StreamController.broadcast();
-      when(() => watchAccount(uid, 'acc-1')).thenAnswer((_) => detail.stream);
+      when(
+        () => repository.watchAccount(uid, 'acc-1'),
+      ).thenAnswer((_) => detail.stream);
     });
 
     tearDown(() => detail.close());
 
     AccountDetailCubit buildDetail() => AccountDetailCubit(
       accountId: 'acc-1',
-      watchAccount: watchAccount,
+      repository: repository,
       currentUser: currentUser,
       connectivity: connectivity,
       observability: observability,

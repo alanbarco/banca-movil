@@ -11,8 +11,7 @@ import '../../../../core/storage/local_storage.dart';
 import '../../../../core/storage/storage_keys.dart';
 import '../../domain/entities/auth_session.dart';
 import '../../domain/entities/user_profile.dart';
-import '../../domain/usecases/sign_out.dart';
-import '../../domain/usecases/watch_auth_state.dart';
+import '../../domain/repositories/auth_repository.dart';
 
 sealed class AuthEvent extends Equatable {
   const AuthEvent();
@@ -77,12 +76,11 @@ class AuthState extends Equatable {
 class AuthBloc extends Bloc<AuthEvent, AuthState>
     implements SessionStatusSource {
   AuthBloc({
-    required WatchAuthState watchAuthState,
-    required SignOut signOut,
+    required AuthRepository repository,
     required SessionTimeoutService sessionTimeout,
     required LocalStorage storage,
     required ObservabilityService observability,
-  }) : _signOut = signOut,
+  }) : _repository = repository,
        _timeout = sessionTimeout,
        _storage = storage,
        _observability = observability,
@@ -92,11 +90,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState>
     on<_SessionTimedOut>(_onTimedOut);
 
     _subscriptions
-      ..add(watchAuthState().listen((s) => add(_SessionChanged(s))))
+      ..add(repository.session.listen((s) => add(_SessionChanged(s))))
       ..add(_timeout.timeouts.listen((_) => add(const _SessionTimedOut())));
   }
 
-  final SignOut _signOut;
+  final AuthRepository _repository;
   final SessionTimeoutService _timeout;
   final LocalStorage _storage;
   final ObservabilityService _observability;
@@ -158,7 +156,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState>
     if (email != null) {
       await _storage.setString(StorageKeys.lastSignedInEmail, email);
     }
-    await _signOut();
+    await _repository.signOut();
     await _observability.setUserId(null);
     emit(AuthState.unauthenticated(prefillEmail: email));
   }

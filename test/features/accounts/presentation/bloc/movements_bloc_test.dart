@@ -6,8 +6,7 @@ import 'package:bi_app/core/error/failure.dart';
 import 'package:bi_app/core/error/result.dart';
 import 'package:bi_app/core/observability/analytics_events.dart';
 import 'package:bi_app/features/accounts/domain/entities/movement.dart';
-import 'package:bi_app/features/accounts/domain/usecases/fetch_more_movements.dart';
-import 'package:bi_app/features/accounts/domain/usecases/watch_recent_movements.dart';
+import 'package:bi_app/features/accounts/domain/repositories/accounts_repository.dart';
 import 'package:bi_app/features/accounts/presentation/bloc/movements_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -16,9 +15,7 @@ import '../../../../helpers/fake_connectivity.dart';
 import '../../../../helpers/fake_observability.dart';
 import '../../accounts_fixtures.dart';
 
-class _MockWatchRecent extends Mock implements WatchRecentMovements {}
-
-class _MockFetchMore extends Mock implements FetchMoreMovements {}
+class _MockRepository extends Mock implements AccountsRepository {}
 
 typedef _PageResult = Result<DataSnapshot<MovementPage>>;
 
@@ -32,8 +29,7 @@ Result<DataSnapshot<MovementPage>> livePage(
 );
 
 void main() {
-  late _MockWatchRecent watchRecent;
-  late _MockFetchMore fetchMore;
+  late _MockRepository repository;
   late StreamController<_PageResult> live;
   late FakeObservabilityService observability;
   late FakeConnectivity connectivity;
@@ -42,20 +38,20 @@ void main() {
   setUpAll(() => registerFallbackValue(movement(0)));
 
   setUp(() {
-    watchRecent = _MockWatchRecent();
-    fetchMore = _MockFetchMore();
+    repository = _MockRepository();
     live = StreamController<_PageResult>.broadcast();
     observability = FakeObservabilityService();
     connectivity = FakeConnectivity();
-    when(() => watchRecent(uid, 'acc-1')).thenAnswer((_) => live.stream);
+    when(
+      () => repository.watchRecentMovements(uid, 'acc-1'),
+    ).thenAnswer((_) => live.stream);
   });
 
   tearDown(() => live.close());
 
   MovementsBloc build() => MovementsBloc(
     accountId: 'acc-1',
-    watchRecentMovements: watchRecent,
-    fetchMoreMovements: fetchMore,
+    repository: repository,
     currentUser: FakeCurrentUser(),
     connectivity: connectivity,
     observability: observability,
@@ -98,7 +94,11 @@ void main() {
     'loadMore agrega la página siguiente usando el último como cursor',
     () async {
       when(
-        () => fetchMore(uid, 'acc-1', after: any(named: 'after')),
+        () => repository.fetchMoreMovements(
+          uid,
+          'acc-1',
+          after: any(named: 'after'),
+        ),
       ).thenAnswer((_) async => livePage(movements(20, 5)));
       final bloc = await started();
       live.add(livePage(movements(0, 20), hasMore: true));
@@ -107,7 +107,9 @@ void main() {
       bloc.add(const MovementsLoadMoreRequested());
       await pumpEventQueue();
 
-      verify(() => fetchMore(uid, 'acc-1', after: movement(19))).called(1);
+      verify(
+        () => repository.fetchMoreMovements(uid, 'acc-1', after: movement(19)),
+      ).called(1);
       expect(bloc.state.items, hasLength(25));
       expect(bloc.state.hasMore, isFalse);
       expect(bloc.state.loadingMore, isFalse);
@@ -124,14 +126,24 @@ void main() {
     await pumpEventQueue();
 
     expect(bloc.state.hasMore, isFalse);
-    verifyNever(() => fetchMore(any(), any(), after: any(named: 'after')));
+    verifyNever(
+      () => repository.fetchMoreMovements(
+        any(),
+        any(),
+        after: any(named: 'after'),
+      ),
+    );
     await bloc.close();
   });
 
   test('pedidos repetidos mientras carga se ignoran', () async {
     final pending = Completer<_PageResult>();
     when(
-      () => fetchMore(uid, 'acc-1', after: any(named: 'after')),
+      () => repository.fetchMoreMovements(
+        uid,
+        'acc-1',
+        after: any(named: 'after'),
+      ),
     ).thenAnswer((_) => pending.future);
     final bloc = await started();
     live.add(livePage(movements(0, 20), hasMore: true));
@@ -145,14 +157,24 @@ void main() {
     pending.complete(livePage(movements(20, 20), hasMore: true));
     await pumpEventQueue();
 
-    verify(() => fetchMore(uid, 'acc-1', after: any(named: 'after'))).called(1);
+    verify(
+      () => repository.fetchMoreMovements(
+        uid,
+        'acc-1',
+        after: any(named: 'after'),
+      ),
+    ).called(1);
     expect(bloc.state.items, hasLength(40));
     await bloc.close();
   });
 
   test('error al pedir más conserva la lista y permite reintentar', () async {
     when(
-      () => fetchMore(uid, 'acc-1', after: any(named: 'after')),
+      () => repository.fetchMoreMovements(
+        uid,
+        'acc-1',
+        after: any(named: 'after'),
+      ),
     ).thenAnswer((_) async => const Err(Failure.network()));
     final bloc = await started();
     live.add(livePage(movements(0, 20), hasMore: true));
@@ -191,7 +213,11 @@ void main() {
 
   test('movimiento entrante con páginas extra no deja huecos', () async {
     when(
-      () => fetchMore(uid, 'acc-1', after: any(named: 'after')),
+      () => repository.fetchMoreMovements(
+        uid,
+        'acc-1',
+        after: any(named: 'after'),
+      ),
     ).thenAnswer((_) async => livePage(movements(21, 5)));
     final bloc = await started();
     live.add(livePage(movements(1, 20), hasMore: true));
@@ -297,7 +323,7 @@ void main() {
 
     expect(bloc.state.status, LoadStatus.success);
     expect(bloc.state.failure, isNull);
-    verify(() => watchRecent(uid, 'acc-1')).called(2);
+    verify(() => repository.watchRecentMovements(uid, 'acc-1')).called(2);
     await bloc.close();
   });
 }

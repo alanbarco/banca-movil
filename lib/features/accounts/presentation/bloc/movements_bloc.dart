@@ -13,8 +13,7 @@ import '../../../../core/observability/analytics_events.dart';
 import '../../../../core/observability/observability_service.dart';
 import '../../../../core/session/current_user_profile.dart';
 import '../../domain/entities/movement.dart';
-import '../../domain/usecases/fetch_more_movements.dart';
-import '../../domain/usecases/watch_recent_movements.dart';
+import '../../domain/repositories/accounts_repository.dart';
 
 sealed class MovementsEvent extends Equatable {
   const MovementsEvent();
@@ -132,14 +131,12 @@ class MovementsState extends Equatable {
 class MovementsBloc extends Bloc<MovementsEvent, MovementsState> {
   MovementsBloc({
     required this.accountId,
-    required WatchRecentMovements watchRecentMovements,
-    required FetchMoreMovements fetchMoreMovements,
+    required AccountsRepository repository,
     required CurrentUserProfile currentUser,
     required ConnectivityStatus connectivity,
     required ObservabilityService observability,
     Duration staleGrace = StaleDataGate.defaultGrace,
-  }) : _watchRecent = watchRecentMovements,
-       _fetchMore = fetchMoreMovements,
+  }) : _repository = repository,
        _currentUser = currentUser,
        _observability = observability,
        super(const MovementsState()) {
@@ -160,8 +157,7 @@ class MovementsBloc extends Bloc<MovementsEvent, MovementsState> {
   static const feature = 'movements';
 
   final String accountId;
-  final WatchRecentMovements _watchRecent;
-  final FetchMoreMovements _fetchMore;
+  final AccountsRepository _repository;
   final CurrentUserProfile _currentUser;
   final ObservabilityService _observability;
   late final StaleDataGate _gate;
@@ -176,10 +172,9 @@ class MovementsBloc extends Bloc<MovementsEvent, MovementsState> {
       return;
     }
     emit(state.copyWith(status: LoadStatus.loading, failure: () => null));
-    _subscription = _watchRecent(
-      uid,
-      accountId,
-    ).listen((result) => add(_LiveUpdated(result)));
+    _subscription = _repository
+        .watchRecentMovements(uid, accountId)
+        .listen((result) => add(_LiveUpdated(result)));
   }
 
   void _onLiveUpdated(_LiveUpdated event, Emitter<MovementsState> emit) {
@@ -266,7 +261,11 @@ class MovementsBloc extends Bloc<MovementsEvent, MovementsState> {
       return;
     }
     emit(state.copyWith(loadingMore: true, loadMoreFailure: () => null));
-    final result = await _fetchMore(uid, accountId, after: items.last);
+    final result = await _repository.fetchMoreMovements(
+      uid,
+      accountId,
+      after: items.last,
+    );
     result.fold(
       (failure) {
         _logLoadError(failure);
