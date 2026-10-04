@@ -85,6 +85,27 @@ abstract final class AppTheme {
         ),
       ),
       cardTheme: CardThemeData(shape: shape, margin: EdgeInsets.zero),
+      navigationBarTheme: NavigationBarThemeData(
+        indicatorColor: AppColors.brandOrange.withValues(alpha: 0.2),
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) => IconThemeData(
+            color: states.contains(WidgetState.selected)
+                ? AppColors.primary
+                : Colors.grey.shade600,
+          ),
+        ),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => TextStyle(
+            fontSize: 12,
+            fontWeight: states.contains(WidgetState.selected)
+                ? FontWeight.w600
+                : FontWeight.w500,
+            color: states.contains(WidgetState.selected)
+                ? AppColors.primary
+                : Colors.grey.shade600,
+          ),
+        ),
+      ),
     );
   }
 }
