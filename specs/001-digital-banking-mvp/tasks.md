@@ -182,20 +182,20 @@ edición de intereses.
 
 ### Tests for User Story 3
 
-- [ ] T082 [P] [US3] Test de `ResolveHomeLayout` en `test/features/personalization/domain/resolve_home_layout_test.dart` (segmento → `default` → defaults locales; filtra por flag; ordena por `order` y prioriza intereses; omite tipos desconocidos y reporta `sdui_section_skipped`)
-- [ ] T083 [P] [US3] Test de `HomeLayoutCubit` en `test/features/personalization/presentation/bloc/home_layout_cubit_test.dart` (re-emite al recibir `onConfigUpdated` y al cambiar intereses; falla de personalización → último layout conocido)
-- [ ] T084 [P] [US3] Widget test en `test/features/personalization/presentation/pages/home_page_test.dart` (renderiza secciones registradas; sección inválida no rompe la pantalla)
+- [X] T082 [P] [US3] Test de `ResolveHomeLayout` en `test/features/personalization/domain/resolve_home_layout_test.dart` (segmento → `default` → defaults locales; filtra por flag; ordena por `order` y prioriza intereses; omite tipos desconocidos y reporta `sdui_section_skipped`)
+- [X] T083 [P] [US3] Test de `HomeLayoutCubit` en `test/features/personalization/presentation/bloc/home_layout_cubit_test.dart` (re-emite al recibir `onConfigUpdated` y al cambiar intereses; falla de personalización → último layout conocido)
+- [X] T084 [P] [US3] Widget test en `test/features/personalization/presentation/pages/home_page_test.dart` (renderiza secciones registradas; sección inválida no rompe la pantalla)
 
 ### Implementation for User Story 3
 
-- [ ] T085 [P] [US3] Crear entidad `HomeLayout` y contrato `HomeLayoutRepository` (`watchLayout()`) en `lib/features/personalization/domain/` y caso de uso `ResolveHomeLayout` en `lib/features/personalization/domain/usecases/resolve_home_layout.dart`
-- [ ] T086 [US3] Crear `HomeLayoutRemoteConfigDatasource` (lee `home_layout`, escucha actualizaciones) en `lib/features/personalization/data/datasources/` y `HomeLayoutRepositoryImpl` envuelto con `FaultTarget.personalization` en `lib/features/personalization/data/repositories/`
-- [ ] T087 [US3] Crear `HomeLayoutCubit` en `lib/features/personalization/presentation/bloc/home_layout_cubit.dart` (combina `CurrentUserProfile` + layout + `FeatureFlagService.changes`)
-- [ ] T088 [P] [US3] Crear secciones en `lib/features/personalization/presentation/widgets/`: `banner_section.dart` (imagen por URL con `errorBuilder` a color/ícono), `offer_carousel_section.dart`, `quick_actions_section.dart` (oculta acciones con `flag` apagado), `tip_section.dart`; registrarlas en `SectionRegistry` desde `lib/features/personalization/personalization_module.dart`
-- [ ] T089 [US3] Reemplazar la `HomePage` interina por la versión SDUI completa en `lib/features/personalization/presentation/pages/home_page.dart` (pull-to-refresh, skeleton, layout desde caché si falla)
-- [ ] T090 [P] [US3] Crear `lib/features/personalization/presentation/pages/offer_detail_page.dart` y ruta `/offers/:offerId` (flag `offers`) en `lib/features/personalization/personalization_routes.dart`
-- [ ] T091 [US3] Agregar edición de intereses (1–5 del catálogo) en `lib/features/auth/presentation/pages/profile_page.dart` usando `AuthRepository.updateInterests` y emitir `SessionEvents.segmentChanged` si cambia el segmento
-- [ ] T092 [US3] Aplicar guardas de flags en el `redirect` de `lib/app/router.dart` (ruta con flag apagado → `/home`) y ocultar la pestaña Divisas en `lib/app/shell/app_shell.dart` según `fx_service`
+- [X] T085 [P] [US3] Crear entidad `HomeLayout` y contrato `HomeLayoutRepository` (`watchLayout()`) en `lib/features/personalization/domain/` y caso de uso `ResolveHomeLayout` en `lib/features/personalization/domain/usecases/resolve_home_layout.dart`
+- [X] T086 [US3] Crear `HomeLayoutRemoteConfigDatasource` (lee `home_layout`, escucha actualizaciones) en `lib/features/personalization/data/datasources/` y `HomeLayoutRepositoryImpl` envuelto con `FaultTarget.personalization` en `lib/features/personalization/data/repositories/`
+- [X] T087 [US3] Crear `HomeLayoutCubit` en `lib/features/personalization/presentation/bloc/home_layout_cubit.dart` (combina `CurrentUserProfile` + layout + `FeatureFlagService.changes`)
+- [X] T088 [P] [US3] Crear secciones en `lib/features/personalization/presentation/widgets/`: `banner_section.dart` (imagen por URL con `errorBuilder` a color/ícono), `offer_carousel_section.dart`, `quick_actions_section.dart` (oculta acciones con `flag` apagado), `tip_section.dart`; registrarlas en `SectionRegistry` desde `lib/features/personalization/personalization_module.dart`
+- [X] T089 [US3] Reemplazar la `HomePage` interina por la versión SDUI completa en `lib/features/personalization/presentation/pages/home_page.dart` (pull-to-refresh, skeleton, layout desde caché si falla)
+- [X] T090 [P] [US3] Crear `lib/features/personalization/presentation/pages/offer_detail_page.dart` y ruta `/offers/:offerId` (flag `offers`) en `lib/features/personalization/personalization_routes.dart`
+- [X] T091 [US3] Agregar edición de intereses (1–5 del catálogo) en `lib/features/auth/presentation/pages/profile_page.dart` usando `AuthRepository.updateInterests` y emitir `SessionEvents.segmentChanged` si cambia el segmento
+- [X] T092 [US3] Aplicar guardas de flags en el `redirect` de `lib/app/router.dart` (ruta con flag apagado → `/home`) y ocultar la pestaña Divisas en `lib/app/shell/app_shell.dart` según `fx_service`
 
 **Checkpoint**: Clientes de segmentos distintos ven inicios distintos; cambios en Remote Config se reflejan sin reinstalar.
 
