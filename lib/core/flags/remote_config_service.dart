@@ -129,6 +129,13 @@ class RemoteConfigService {
     return _lastValid[key] ?? const {'schemaVersion': supportedSchemaVersion};
   }
 
+  /// Pide la configuración al servidor (pull-to-refresh). Si se activó algo
+  /// nuevo, avisa a los suscriptores de [updates]. Puede lanzar sin red.
+  Future<void> refresh() async {
+    final activated = await _remoteConfig.fetchAndActivate();
+    if (activated) _updates.add(RemoteConfigKeys.all.toSet());
+  }
+
   Future<void> _onConfigUpdated(RemoteConfigUpdate update) async {
     await _remoteConfig.activate();
     _logger.info('configuración actualizada', {
