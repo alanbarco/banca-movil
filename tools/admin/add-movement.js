@@ -23,8 +23,13 @@ async function resolveAccount(db, uid) {
   return accounts.docs[0].id;
 }
 
+/** Mismo formato que la app (MoneyText, es_EC): "$1.300,00". */
 function money(cents) {
-  return `$${(cents / 100).toFixed(2)}`;
+  const amount = (cents / 100).toLocaleString('es-EC', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return `$${amount}`;
 }
 
 async function main() {
