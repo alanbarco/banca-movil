@@ -23,6 +23,9 @@ GoRouter createRouter({
   List<Stream<Object?>> refreshOn = const [],
   String? Function()? splashDebugInfo,
   String initialLocation = AppRoutes.splash,
+
+  /// Panel de fallos (solo builds de demo); el guard exige además el flag.
+  WidgetBuilder? faultPanel,
 }) {
   final shellRoutes = [for (final m in modules) ...m.shellRoutes];
   final destinations = AppShell.destinationsFor(shellRoutes);
@@ -48,6 +51,11 @@ GoRouter createRouter({
             SplashPage(debugInfo: kDebugMode ? splashDebugInfo?.call() : null),
       ),
       for (final module in modules) ...module.routes,
+      if (faultPanel != null)
+        GoRoute(
+          path: AppRoutes.debugFaults,
+          builder: (context, state) => faultPanel(context),
+        ),
       if (shellRoutes.isNotEmpty)
         ShellRoute(
           builder: (context, state, child) => modules.fold<Widget>(

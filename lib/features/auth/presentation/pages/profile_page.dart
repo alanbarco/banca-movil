@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/fault_injection/fault_panel_access.dart';
 import '../../../../core/notifications/notifications_toggle.dart';
+import '../../../../core/routing/app_routes.dart';
 import '../../../../core/ui/theme.dart';
 import '../../domain/entities/interest.dart';
 import '../../domain/usecases/update_interests.dart';
@@ -16,6 +19,7 @@ class ProfilePage extends StatelessWidget {
     required this.authBloc,
     required this.updateInterests,
     this.notifications,
+    this.faultPanel,
     super.key,
   });
 
@@ -24,6 +28,9 @@ class ProfilePage extends StatelessWidget {
 
   /// `null` si la feature de notificaciones no está registrada.
   final NotificationsToggle? notifications;
+
+  /// Acceso al simulador de fallos (solo builds de demo con el flag).
+  final FaultPanelAccess? faultPanel;
 
   @override
   Widget build(BuildContext context) {
@@ -101,6 +108,14 @@ class ProfilePage extends StatelessWidget {
                   toggle: toggle,
                 ),
               ],
+              if (faultPanel?.isAllowed ?? false)
+                ListTile(
+                  leading: const Icon(Icons.bug_report_outlined),
+                  title: const Text('Simulador de fallos'),
+                  subtitle: const Text('Demo: sin red, latencia o error'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push(AppRoutes.debugFaults),
+                ),
               const Divider(height: AppSizes.spacing * 3),
               Padding(
                 padding: const EdgeInsets.symmetric(

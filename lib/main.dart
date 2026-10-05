@@ -12,6 +12,8 @@ import 'app/app_config.dart';
 import 'app/di.dart';
 import 'app/route_guard.dart';
 import 'app/router.dart';
+import 'core/fault_injection/fault_injection_cubit.dart';
+import 'core/fault_injection/presentation/fault_panel_page.dart';
 import 'core/flags/feature_flag_service.dart';
 import 'core/flags/remote_config_service.dart';
 import 'core/observability/firebase_observability_service.dart';
@@ -86,6 +88,9 @@ GoRouter _buildRouter(RemoteConfigService remoteConfig) {
     modules: featureModules,
     refreshOn: [session.changes, flags.changes],
     splashDebugInfo: () => _configSummary(remoteConfig),
+    faultPanel: AppConfig.demoTools
+        ? (_) => FaultPanelPage(cubit: getIt<FaultInjectionCubit>())
+        : null,
   );
 }
 

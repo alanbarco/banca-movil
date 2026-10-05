@@ -9,8 +9,10 @@ import '../core/connectivity/connectivity_status.dart';
 
 import '../core/fault_injection/fault_config.dart';
 import '../core/fault_injection/fault_injection_cubit.dart';
+import '../core/fault_injection/fault_panel_access.dart';
 import '../core/fault_injection/fault_runner.dart';
 import '../core/flags/feature_flag_service.dart';
+import '../core/flags/flag_keys.dart';
 import '../core/flags/remote_config_feature_flag_service.dart';
 import '../core/flags/remote_config_service.dart';
 import '../core/modules/feature_module.dart';
@@ -18,6 +20,7 @@ import '../core/network/dio_factory.dart';
 import '../core/observability/observability_service.dart';
 import '../core/routing/pending_route_store.dart';
 import '../core/sdui/section_registry.dart';
+import '../core/session/current_user_profile.dart';
 import '../core/session/session_events.dart';
 import '../core/session/session_status.dart';
 import '../core/session/session_timeout_service.dart';
@@ -86,6 +89,18 @@ void configureDependencies({
     ..registerLazySingleton<FaultRunner>(
       () => FaultRunner(
         AppConfig.demoTools ? getIt<FaultInjectionCubit>() : const NoFaults(),
+      ),
+    )
+    ..registerLazySingleton(
+      () => FaultPanelAccess(
+        () =>
+            AppConfig.demoTools &&
+            getIt<FeatureFlagService>().isEnabled(
+              FlagKeys.demoFaultPanel,
+              segment: getIt.isRegistered<CurrentUserProfile>()
+                  ? getIt<CurrentUserProfile>().current?.segment
+                  : null,
+            ),
       ),
     )
     ..registerLazySingleton<DioFactory>(

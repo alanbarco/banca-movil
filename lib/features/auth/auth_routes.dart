@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/fault_injection/fault_panel_access.dart';
 import '../../core/notifications/notifications_toggle.dart';
 import '../../core/observability/observability_service.dart';
 import '../../core/routing/app_routes.dart';
@@ -71,6 +72,7 @@ List<RouteBase> authShellRoutes() => [
       notifications: _getIt.isRegistered<NotificationsToggle>()
           ? _getIt<NotificationsToggle>()
           : null,
+      faultPanel: _getIt<FaultPanelAccess>(),
     ),
   ),
 ];

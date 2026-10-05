@@ -98,6 +98,31 @@ void main() {
     await tester.pump();
   }
 
+  for (final demoTools in [true, false]) {
+    testWidgets('panel de fallos con DEMO_TOOLS=$demoTools', (tester) async {
+      session.status = SessionStatus.authenticated;
+      final router = createRouter(
+        guard: RouteGuard(
+          session: session,
+          flags: _AllFlagsOn(),
+          demoTools: demoTools,
+        ),
+        sessionTimeout: timeout,
+        modules: const [_FakeModule()],
+        faultPanel: (_) => const Scaffold(body: Text('panel')),
+        initialLocation: AppRoutes.debugFaults,
+      );
+      await pump(tester, router);
+      await tester.pumpAndSettle();
+
+      expect(find.text('panel'), demoTools ? findsOneWidget : findsNothing);
+      expect(
+        find.text('page /home'),
+        demoTools ? findsNothing : findsOneWidget,
+      );
+    });
+  }
+
   testWidgets('arranca en /splash sin features registradas', (tester) async {
     await pump(tester, build(const []));
 
