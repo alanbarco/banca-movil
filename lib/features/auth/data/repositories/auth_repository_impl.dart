@@ -139,6 +139,7 @@ class AuthRepositoryImpl implements AuthRepository, CurrentUserProfile {
       uid: profile.uid,
       segment: profile.segment.wireName,
       interests: [for (final i in profile.interests) i.wireName],
+      notificationsEnabled: profile.notificationsEnabled,
     );
   }
 
@@ -190,7 +191,7 @@ class AuthRepositoryImpl implements AuthRepository, CurrentUserProfile {
   Future<Result<void>> signOut() {
     return _guard('sign_out', () async {
       final user = _auth.currentUser;
-      if (user != null) _events.publish(SigningOut(uid: user.uid));
+      if (user != null) await _events.signingOut(user.uid);
       await _auth.signOut();
     });
   }

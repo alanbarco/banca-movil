@@ -6,14 +6,18 @@ class SessionUser extends Equatable {
     required this.uid,
     required this.segment,
     this.interests = const [],
+    this.notificationsEnabled = false,
   });
 
   final String uid;
   final String segment;
   final List<String> interests;
 
+  /// El cliente activó las notificaciones push en su perfil.
+  final bool notificationsEnabled;
+
   @override
-  List<Object?> get props => [uid, segment, interests];
+  List<Object?> get props => [uid, segment, interests, notificationsEnabled];
 }
 
 /// Contrato implementado por la feature `auth`; el resto solo depende de esto.
