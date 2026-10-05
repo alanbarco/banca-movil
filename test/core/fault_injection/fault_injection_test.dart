@@ -35,6 +35,19 @@ void main() {
       verify(() => firestore.enableNetwork()).called(1);
     });
 
+    test('error de Firestore corta la red sin el banner global', () async {
+      await cubit.setFault(FaultTarget.firestore, FaultMode.error);
+      expect(cubit.state.forcedOffline, isFalse);
+      verify(() => firestore.disableNetwork()).called(1);
+
+      // De error a sin red: la red ya está cortada.
+      await cubit.setFault(FaultTarget.firestore, FaultMode.offline);
+      verifyNever(() => firestore.enableNetwork());
+
+      await cubit.setFault(FaultTarget.firestore, FaultMode.none);
+      verify(() => firestore.enableNetwork()).called(1);
+    });
+
     test('otros servicios no tocan la red de Firestore', () async {
       await cubit.setFault(FaultTarget.fx, FaultMode.offline);
 
@@ -92,19 +105,27 @@ void main() {
       );
     });
 
-    test('offline lanza salvo en Firestore, que usa su caché', () async {
-      await cubit.setFault(FaultTarget.personalization, FaultMode.offline);
-      await cubit.setFault(FaultTarget.firestore, FaultMode.offline);
+    for (final mode in [FaultMode.offline, FaultMode.error]) {
+      test('${mode.name} lanza salvo en Firestore, que usa su caché', () async {
+        await cubit.setFault(FaultTarget.personalization, mode);
+        await cubit.setFault(FaultTarget.firestore, mode);
 
-      await expectLater(
-        runner.runWithFaults(FaultTarget.personalization, () async => 1),
-        throwsA(isA<SimulatedFaultException>()),
-      );
-      expect(
-        await runner.runWithFaults(FaultTarget.firestore, () async => 2),
-        2,
-      );
-    });
+        await expectLater(
+          runner.runWithFaults(FaultTarget.personalization, () async => 1),
+          throwsA(isA<SimulatedFaultException>()),
+        );
+        expect(
+          await runner.runWithFaults(FaultTarget.firestore, () async => 2),
+          2,
+        );
+        expect(
+          await runner
+              .streamWithFaults(FaultTarget.firestore, () => Stream.value(3))
+              .single,
+          3,
+        );
+      });
+    }
 
     test('latencia retrasa la acción y el stream', () {
       fakeAsync((async) {

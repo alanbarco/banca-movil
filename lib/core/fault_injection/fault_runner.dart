@@ -2,8 +2,9 @@ import 'fault_config.dart';
 
 /// Aplica el fallo simulado configurado antes de ejecutar una operación real.
 ///
-/// Para Firestore el modo `offline` no lanza: la red ya está deshabilitada con
-/// `disableNetwork()` y la operación debe resolverse desde la caché local.
+/// Para Firestore, `offline` y `error` no lanzan: la red ya está deshabilitada
+/// con `disableNetwork()` y la operación se resuelve desde la caché local,
+/// como lo haría el SDK ante un corte o un error de servidor real.
 class FaultRunner {
   const FaultRunner(this._source);
 
@@ -19,11 +20,9 @@ class FaultRunner {
         break;
       case FaultMode.latency:
         await Future<void>.delayed(config.latency);
-      case FaultMode.error:
-        throw SimulatedFaultException(target, FaultMode.error);
-      case FaultMode.offline:
+      case FaultMode.error || FaultMode.offline:
         if (target != FaultTarget.firestore) {
-          throw SimulatedFaultException(target, FaultMode.offline);
+          throw SimulatedFaultException(target, config.mode);
         }
     }
     return action();
@@ -39,11 +38,9 @@ class FaultRunner {
         break;
       case FaultMode.latency:
         await Future<void>.delayed(config.latency);
-      case FaultMode.error:
-        throw SimulatedFaultException(target, FaultMode.error);
-      case FaultMode.offline:
+      case FaultMode.error || FaultMode.offline:
         if (target != FaultTarget.firestore) {
-          throw SimulatedFaultException(target, FaultMode.offline);
+          throw SimulatedFaultException(target, config.mode);
         }
     }
     yield* source();

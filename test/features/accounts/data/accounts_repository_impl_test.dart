@@ -315,23 +315,35 @@ void main() {
       expect(observability.errors, hasLength(1));
     });
 
-    test(
-      'simulador en modo error → server, sin reportar a Crashlytics',
-      () async {
-        faults.config = const FaultConfig(mode: FaultMode.error);
+    test('simulador en modo error: como el SDK, entrega lo disponible', () async {
+      // El cubit del simulador corta la red real (`disableNetwork`) y Firestore
+      // responde desde su caché; el repositorio no recibe un error.
+      await addAccount();
+      faults.config = const FaultConfig(mode: FaultMode.error);
 
-        final result = await repository.watchAccounts(uid).first;
-        final more = await repository.fetchMoreMovements(
-          uid,
-          'acc-1',
-          after: movement(1),
-        );
+      final result = await repository.watchAccounts(uid).first;
 
-        expect(result.failureOrNull, const Failure.server());
-        expect(more.failureOrNull, const Failure.server());
-        expect(observability.errors, isEmpty);
-      },
-    );
+      expect(result.isSuccess, isTrue);
+      expect(observability.errors, isEmpty);
+    });
+
+    test('un fallo simulado se traduce sin reportar a Crashlytics', () {
+      expect(
+        AccountsRepositoryImpl.mapError(
+          const SimulatedFaultException(FaultTarget.firestore, FaultMode.error),
+        ),
+        const Failure.server(),
+      );
+      expect(
+        AccountsRepositoryImpl.mapError(
+          const SimulatedFaultException(
+            FaultTarget.firestore,
+            FaultMode.offline,
+          ),
+        ),
+        const Failure.network(),
+      );
+    });
 
     test('simulador en modo latencia retrasa la primera entrega', () async {
       await addAccount();

@@ -48,12 +48,19 @@ class FaultInjectionCubit extends Cubit<FaultInjectionState>
     );
     if (target == FaultTarget.firestore) {
       await _syncFirestoreNetwork(
-        wasOffline: previous.mode == FaultMode.offline,
-        isOffline: mode == FaultMode.offline,
+        wasOffline: _cutsFirestoreNetwork(previous.mode),
+        isOffline: _cutsFirestoreNetwork(mode),
       );
     }
     emit(state.copyWith(target, next));
   }
+
+  /// "Sin red" y "Error" cortan la red real de Firestore. Así reacciona el
+  /// SDK ante un error de servidor (`unavailable`, 5xx): responde desde su
+  /// caché y reintenta solo, sin entregar el error a la app. Solo "Sin red"
+  /// muestra además el banner global de conexión.
+  static bool _cutsFirestoreNetwork(FaultMode mode) =>
+      mode == FaultMode.offline || mode == FaultMode.error;
 
   Future<void> reset() async {
     for (final target in FaultTarget.values) {
