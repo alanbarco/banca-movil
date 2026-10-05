@@ -21,6 +21,10 @@ class LoginState extends Equatable {
 
   bool get isSubmitting => status == LoginStatus.submitting;
 
+  /// Tras un login correcto la app aún lee el perfil antes de navegar al
+  /// inicio: el botón sigue cargando para que no parezca congelada.
+  bool get isBusy => isSubmitting || status == LoginStatus.success;
+
   @override
   List<Object?> get props => [email, status, failure];
 }
@@ -38,7 +42,7 @@ class LoginCubit extends Cubit<LoginState> {
   final ObservabilityService _observability;
 
   Future<void> submit({required String email, required String password}) async {
-    if (state.isSubmitting) return;
+    if (state.isBusy) return;
     emit(LoginState(email: email, status: LoginStatus.submitting));
 
     final result = await _signIn(email: email, password: password);

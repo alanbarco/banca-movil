@@ -62,6 +62,19 @@ void main() {
   );
 
   blocTest<LoginCubit, LoginState>(
+    'tras el éxito sigue ocupado hasta navegar y no reenvía',
+    setUp: () => signInReturns(const Success(null)),
+    build: build,
+    act: (cubit) async {
+      await cubit.submit(email: 'ana@bi.test', password: 'secreta123');
+      expect(cubit.state.isBusy, isTrue);
+      await cubit.submit(email: 'ana@bi.test', password: 'secreta123');
+    },
+    skip: 2,
+    expect: () => const <LoginState>[],
+  );
+
+  blocTest<LoginCubit, LoginState>(
     'credenciales inválidas: conserva el correo y registra el motivo',
     setUp: () => signInReturns(const Err(Failure.unauthorized())),
     build: build,

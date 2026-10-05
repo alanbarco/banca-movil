@@ -94,19 +94,19 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: AppSizes.spacing * 1.5),
             SubmitButton(
               label: 'Ingresar',
-              loading: state.isSubmitting,
+              loading: state.isBusy,
               onPressed: _submit,
             ),
             const SizedBox(height: 8),
             TextButton(
-              onPressed: state.isSubmitting
+              onPressed: state.isBusy
                   ? null
                   : () => context.push(AppRoutes.forgotPassword),
               child: const Text('¿Olvidaste tu contraseña?'),
             ),
             const Divider(height: AppSizes.spacing * 2),
             OutlinedButton(
-              onPressed: state.isSubmitting
+              onPressed: state.isBusy
                   ? null
                   : () => context.go(AppRoutes.register),
               child: const Text('Hazte cliente'),
