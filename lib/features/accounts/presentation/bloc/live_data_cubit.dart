@@ -77,9 +77,15 @@ abstract class LiveDataCubit<T> extends Cubit<LoadState<T>> {
     if (snapshot == null || isClosed) return;
     final data = snapshot.data;
     if (data == null) {
-      // Una caché vacía no prueba que no haya datos: se sigue esperando al
-      // servidor (con el banner offline global visible si no hay red).
-      if (!snapshot.isStale) emit(whenMissing());
+      if (!snapshot.isStale) {
+        emit(whenMissing());
+      } else if (_gate.showStale && state.status != LoadStatus.failure) {
+        // Una caché vacía no prueba que no haya datos. Si el servidor no
+        // responde a tiempo, error con reintento en vez de un skeleton
+        // infinito; la escucha sigue y los datos llegan solos al volver.
+        _logLoadError(const Failure.network());
+        emit(LoadState<T>.failure(const Failure.network()));
+      }
       return;
     }
     if (!_gate.showStale) {
@@ -98,14 +104,16 @@ abstract class LiveDataCubit<T> extends Cubit<LoadState<T>> {
 
   void _fail(Failure failure) {
     _forget();
-    unawaited(
-      _observability.logEvent(AnalyticsEvents.dataLoadError, {
-        AnalyticsParams.feature: feature,
-        AnalyticsParams.reason: failure.reason,
-      }),
-    );
+    _logLoadError(failure);
     emit(LoadState.failure(failure, previous: state.data));
   }
+
+  void _logLoadError(Failure failure) => unawaited(
+    _observability.logEvent(AnalyticsEvents.dataLoadError, {
+      AnalyticsParams.feature: feature,
+      AnalyticsParams.reason: failure.reason,
+    }),
+  );
 
   void _forget() {
     _last = null;

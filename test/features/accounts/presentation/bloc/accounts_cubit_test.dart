@@ -153,6 +153,22 @@ void main() {
   );
 
   blocTest<AccountsCubit, Object>(
+    'caché vacía y servidor callado: error con reintento; luego llegan datos',
+    build: build,
+    act: (cubit) async {
+      cubit.start();
+      source.add(cached(const []));
+      await Future<void>.delayed(grace * 2);
+      source.add(fresh([savings]));
+    },
+    expect: () => [
+      const LoadState<List<Account>>.loading(),
+      const LoadState<List<Account>>.failure(Failure.network()),
+      LoadState<List<Account>>.success([savings]),
+    ],
+  );
+
+  blocTest<AccountsCubit, Object>(
     'falla → failure con data_load_error y retry vuelve a cargar',
     build: build,
     act: (cubit) async {

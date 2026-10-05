@@ -254,6 +254,28 @@ void main() {
     await bloc.close();
   });
 
+  test('caché vacía y servidor callado: error; luego llegan datos', () async {
+    final bloc = await started();
+    live.add(
+      const Success(
+        DataSnapshot(
+          data: MovementPage(items: [], hasMore: false),
+          isStale: true,
+        ),
+      ),
+    );
+    await Future<void>.delayed(grace * 2);
+    await pumpEventQueue();
+    expect(bloc.state.status, LoadStatus.failure);
+    expect(bloc.state.failure, const Failure.network());
+
+    live.add(livePage(movements(0, 3)));
+    await pumpEventQueue();
+    expect(bloc.state.status, LoadStatus.success);
+    expect(bloc.state.failure, isNull);
+    await bloc.close();
+  });
+
   test('caché confirmada a tiempo: se muestra sin aviso', () async {
     final bloc = await started();
     live.add(cachedPage(DateTime.utc(2026, 10, 3, 9)));

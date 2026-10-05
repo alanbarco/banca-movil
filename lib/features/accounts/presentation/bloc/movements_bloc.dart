@@ -161,6 +161,9 @@ class MovementsBloc extends Bloc<MovementsEvent, MovementsState> {
   final CurrentUserProfile _currentUser;
   final ObservabilityService _observability;
   late final StaleDataGate _gate;
+
+  /// La última entrega fue una caché vacía: aún no se sabe si hay datos.
+  bool _waitingOnEmptyCache = false;
   StreamSubscription<Result<DataSnapshot<MovementPage>>>? _subscription;
 
   void _subscribe(Emitter<MovementsState> emit) {
@@ -184,10 +187,11 @@ class MovementsBloc extends Bloc<MovementsEvent, MovementsState> {
       final isEmpty = page.items.isEmpty && older.isEmpty;
       _gate.track(fromCache: snapshot.isStale);
       final LoadStatus status;
+      _waitingOnEmptyCache = isEmpty && snapshot.isStale;
       if (isEmpty) {
         // Caché vacía: se espera al servidor en lugar de decir "sin
-        // movimientos".
-        if (snapshot.isStale) return;
+        // movimientos" (con error y reintento si no responde a tiempo).
+        if (snapshot.isStale) return _failIfServerSilent(emit);
         status = LoadStatus.empty;
       } else {
         status = _dataStatus;
@@ -215,11 +219,21 @@ class MovementsBloc extends Bloc<MovementsEvent, MovementsState> {
     _StalenessChanged event,
     Emitter<MovementsState> emit,
   ) {
-    if (!state.hasData) return;
+    if (!state.hasData) return _failIfServerSilent(emit);
     final status = _dataStatus;
     if (status == state.status) return;
     _logIfBecomingStale(status);
     emit(state.copyWith(status: status));
+  }
+
+  /// Caché vacía y servidor sin responder tras la gracia: error con
+  /// reintento en vez de un skeleton infinito. No se corta la escucha.
+  void _failIfServerSilent(Emitter<MovementsState> emit) {
+    if (!_waitingOnEmptyCache || !_gate.showStale) return;
+    if (state.status == LoadStatus.failure) return;
+    const failure = Failure.network();
+    _logLoadError(failure);
+    emit(state.copyWith(status: LoadStatus.failure, failure: () => failure));
   }
 
   void _logIfBecomingStale(LoadStatus next) {
