@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/modules/feature_module.dart';
@@ -49,14 +50,17 @@ GoRouter createRouter({
       for (final module in modules) ...module.routes,
       if (shellRoutes.isNotEmpty)
         ShellRoute(
-          builder: (context, state, child) => AppShell(
-            location: state.uri.path,
-            destinations: destinations,
-            sessionTimeout: sessionTimeout,
-            isTabEnabled: guard.isAllowedByFlags,
-            // El router no reconstruye el shell si la ruta no cambia.
-            tabChanges: refresh,
-            child: child,
+          builder: (context, state, child) => modules.fold<Widget>(
+            AppShell(
+              location: state.uri.path,
+              destinations: destinations,
+              sessionTimeout: sessionTimeout,
+              isTabEnabled: guard.isAllowedByFlags,
+              // El router no reconstruye el shell si la ruta no cambia.
+              tabChanges: refresh,
+              child: child,
+            ),
+            (shell, module) => module.wrapShell(shell),
           ),
           routes: shellRoutes,
         ),

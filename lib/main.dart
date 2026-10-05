@@ -15,6 +15,7 @@ import 'app/router.dart';
 import 'core/flags/feature_flag_service.dart';
 import 'core/flags/remote_config_service.dart';
 import 'core/observability/firebase_observability_service.dart';
+import 'core/routing/pending_route_store.dart';
 import 'core/session/current_user_profile.dart';
 import 'core/session/session_status.dart';
 import 'core/session/session_timeout_service.dart';
@@ -48,7 +49,11 @@ Future<void> main() async {
     firestore: FirebaseFirestore.instance,
   );
 
-  runApp(BiApp(router: _buildRouter(remoteConfig)));
+  final router = _buildRouter(remoteConfig);
+  for (final module in featureModules) {
+    module.onAppReady(router);
+  }
+  runApp(BiApp(router: router));
 }
 
 /// Persistencia offline activada y, si el cliente cerró sesión, caché
@@ -74,6 +79,7 @@ GoRouter _buildRouter(RemoteConfigService remoteConfig) {
       session: session,
       flags: flags,
       currentSegment: _currentSegment,
+      pendingRoutes: getIt<PendingRouteStore>(),
       demoTools: AppConfig.demoTools,
     ),
     sessionTimeout: getIt<SessionTimeoutService>(),

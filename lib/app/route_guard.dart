@@ -1,6 +1,7 @@
 import '../core/flags/feature_flag_service.dart';
 import '../core/flags/flag_keys.dart';
 import '../core/routing/app_routes.dart';
+import '../core/routing/pending_route_store.dart';
 import '../core/session/session_status.dart';
 
 /// Reglas de `redirect` de `contracts/ui-routes.md`, separadas de GoRouter
@@ -10,14 +11,17 @@ class RouteGuard {
     required SessionStatusSource session,
     required FeatureFlagService flags,
     String? Function()? currentSegment,
+    PendingRouteStore? pendingRoutes,
     this.demoTools = false,
   }) : _session = session,
        _flags = flags,
-       _currentSegment = currentSegment;
+       _currentSegment = currentSegment,
+       _pendingRoutes = pendingRoutes;
 
   final SessionStatusSource _session;
   final FeatureFlagService _flags;
   final String? Function()? _currentSegment;
+  final PendingRouteStore? _pendingRoutes;
   final bool demoTools;
 
   SessionStatus get sessionStatus => _session.status;
@@ -37,8 +41,11 @@ class RouteGuard {
         return path == AppRoutes.register ? null : AppRoutes.register;
 
       case SessionStatus.authenticated:
-        // Tras login o registro el destino es siempre el inicio.
-        if (AppRoutes.isPublic(path)) return AppRoutes.home;
+        // Tras login o registro: la ruta pendiente (p. ej. de una push
+        // tocada sin sesión) o el inicio.
+        if (AppRoutes.isPublic(path)) {
+          return _pendingRoutes?.take() ?? AppRoutes.home;
+        }
         return isAllowedByFlags(path) ? null : AppRoutes.home;
     }
   }

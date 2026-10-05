@@ -1,6 +1,7 @@
 import 'package:bi_app/app/route_guard.dart';
 import 'package:bi_app/core/flags/feature_flag_service.dart';
 import 'package:bi_app/core/flags/flag_keys.dart';
+import 'package:bi_app/core/routing/pending_route_store.dart';
 import 'package:bi_app/core/session/session_status.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -89,6 +90,18 @@ void main() {
       expect(go('/register'), '/home');
       expect(go('/splash'), '/home');
       expect(go('/forgot-password'), '/home');
+    });
+
+    test('una push tocada sin sesión se abre tras el login (una vez)', () {
+      final pending = PendingRouteStore()..save('/accounts/acc-1');
+      guard = RouteGuard(
+        session: session,
+        flags: flags,
+        pendingRoutes: pending,
+      );
+
+      expect(go('/login'), '/accounts/acc-1');
+      expect(go('/login'), '/home');
     });
 
     test('cerrar sesión desde el perfil y volver a entrar lleva a /home', () {
