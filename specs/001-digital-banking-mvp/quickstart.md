@@ -17,6 +17,10 @@ Guía para configurar, ejecutar y **validar** el MVP de punta a punta. Todo es g
 
 ## 2. Configuración de Firebase (una vez)
 
+> Colocar los archivos compartidos por correo: `.env` en la raíz del repositorio y
+> `google-services.json` en `android/app/`; luego continuar en [3. Ejecutar](#3-ejecutar).
+> Los pasos de esta sección documentan cómo se configuró el proyecto de Firebase.
+
 1. Crear proyecto en la consola de Firebase (plan **Spark**; Analytics habilitado).
 2. **Authentication** → habilitar *Email/Password*.
 3. **Firestore** → crear base en modo producción.

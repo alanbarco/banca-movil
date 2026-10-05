@@ -35,23 +35,33 @@ Spark, costo cero).
 
 - Flutter **3.35.4** (Dart 3.9) · Android Studio con emulador **API 33+ con Google Play** o un
   dispositivo Android
-- Node.js 20+ y Firebase CLI (configuración y herramientas del banco)
-- Un proyecto de Firebase en plan Spark
 
 ## Configurar
 
-Guía completa: [quickstart.md](specs/001-digital-banking-mvp/quickstart.md). En resumen:
+Colocar los dos archivos de configuración compartidos por correo:
 
-1. Descargar `google-services.json` de la app Android `com.alanbarco.bi_app` a `android/app/`.
-2. Copiar `.env.example` a `.env` y completar las claves de Firebase. `DEMO_TOOLS=true`
-   habilita el simulador de fallos.
-3. Desplegar la configuración versionada:
-   ```bash
-   firebase deploy --only firestore:rules,firestore:indexes,remoteconfig
-   ```
+| Archivo | Dónde va |
+|---|---|
+| `.env` | Raíz del repositorio (junto a `pubspec.yaml`) |
+| `google-services.json` | `android/app/google-services.json` |
+
+```
+banca-movil/
+├── .env                           ← aquí
+├── pubspec.yaml
+└── android/
+    └── app/
+        └── google-services.json   ← aquí
+```
+
+Con eso la app se conecta al proyecto de Firebase ya configurado (reglas, Remote Config y
+datos) y se puede [ejecutar](#ejecutar) directamente. El `.env` trae `DEMO_TOOLS=true`, que
+habilita el simulador de fallos en Perfil.
 
 Ninguna credencial está en el repositorio (`.env`, `google-services.json` y
-`tools/admin/service-account.json` están en `.gitignore`).
+`tools/admin/service-account.json` están en `.gitignore`). Los scripts de `tools/admin`
+(movimientos y envío de push) requieren una cuenta de servicio con permisos de
+administrador: no se comparte y solo los ejecuta el equipo del proyecto.
 
 ## Ejecutar
 
