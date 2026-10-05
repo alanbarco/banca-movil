@@ -37,6 +37,7 @@ class NotificationsCubit extends Cubit<NotificationsState> {
     required CurrentUserProfile currentUser,
     required LocalStorage storage,
     required ObservabilityService observability,
+    Duration inAppTimeout = defaultInAppTimeout,
   }) : _repository = repository,
        _toggle = toggle,
        _resolveRoute = resolveRoute,
@@ -44,10 +45,14 @@ class NotificationsCubit extends Cubit<NotificationsState> {
        _currentUser = currentUser,
        _storage = storage,
        _observability = observability,
+       _inAppTimeout = inAppTimeout,
        super(const NotificationsState());
 
   /// La explicación se muestra una sola vez por dispositivo.
   static const explainerShownKey = 'push_explainer_shown';
+
+  /// Tiempo máximo del aviso in-app en pantalla si el cliente no lo toca.
+  static const defaultInAppTimeout = Duration(seconds: 7);
 
   final NotificationsRepository _repository;
   final NotificationsToggle _toggle;
@@ -56,12 +61,12 @@ class NotificationsCubit extends Cubit<NotificationsState> {
   final CurrentUserProfile _currentUser;
   final LocalStorage _storage;
   final ObservabilityService _observability;
+  final Duration _inAppTimeout;
   StreamSubscription<PushMessage>? _foreground;
+  Timer? _inAppTimer;
 
   Future<void> start() async {
-    _foreground = _repository.foregroundMessages.listen(
-      (message) => emit(NotificationsState(inApp: message)),
-    );
+    _foreground = _repository.foregroundMessages.listen(_showInApp);
     if (await _shouldExplain() && !isClosed) {
       emit(NotificationsState(inApp: state.inApp, showExplainer: true));
     }
@@ -75,7 +80,10 @@ class NotificationsCubit extends Cubit<NotificationsState> {
 
   Future<void> declineExplainer() => _markExplained();
 
-  void dismiss() => emit(const NotificationsState());
+  void dismiss() {
+    _inAppTimer?.cancel();
+    emit(const NotificationsState());
+  }
 
   /// Tocó "Ver" en el aviso: devuelve la ruta a abrir.
   String? open(PushMessage message) {
@@ -92,6 +100,15 @@ class NotificationsCubit extends Cubit<NotificationsState> {
       AnalyticsParams.type: message.type.name,
     }),
   );
+
+  /// Cada aviso nuevo reinicia el conteo; si nadie lo toca, se cierra solo.
+  void _showInApp(PushMessage message) {
+    _inAppTimer?.cancel();
+    emit(NotificationsState(inApp: message));
+    _inAppTimer = Timer(_inAppTimeout, () {
+      if (!isClosed) dismiss();
+    });
+  }
 
   Future<bool> _shouldExplain() async {
     final user = _currentUser.current;
@@ -113,6 +130,7 @@ class NotificationsCubit extends Cubit<NotificationsState> {
 
   @override
   Future<void> close() async {
+    _inAppTimer?.cancel();
     await _foreground?.cancel();
     return super.close();
   }

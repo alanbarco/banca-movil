@@ -63,7 +63,9 @@ void main() {
 
   tearDown(() => foreground.close());
 
-  NotificationsCubit build() => NotificationsCubit(
+  NotificationsCubit build({
+    Duration inAppTimeout = NotificationsCubit.defaultInAppTimeout,
+  }) => NotificationsCubit(
     repository: repository,
     toggle: toggle,
     resolveRoute: ResolvePushRoute(
@@ -74,6 +76,7 @@ void main() {
     currentUser: profile,
     storage: storage,
     observability: observability,
+    inAppTimeout: inAppTimeout,
   );
 
   blocTest<NotificationsCubit, NotificationsState>(
@@ -167,4 +170,78 @@ void main() {
       {AnalyticsParams.type: 'offer'},
     ),
   );
+
+  group('el aviso in-app se cierra solo', () {
+    const timeout = Duration(milliseconds: 50);
+    const movement = PushMessage(
+      title: 'Recibiste dinero',
+      body: r'+$10,00',
+      type: PushType.movement,
+      route: '/accounts/acc-1',
+    );
+
+    setUp(
+      () => when(
+        () => repository.permission(),
+      ).thenAnswer((_) async => PushPermission.granted),
+    );
+
+    test('por defecto dura como máximo 7 segundos', () {
+      expect(
+        NotificationsCubit.defaultInAppTimeout,
+        const Duration(seconds: 7),
+      );
+    });
+
+    blocTest<NotificationsCubit, NotificationsState>(
+      'si nadie lo toca, desaparece al vencer el tiempo',
+      build: () => build(inAppTimeout: timeout),
+      act: (cubit) async {
+        await cubit.start();
+        foreground.add(_offer);
+      },
+      wait: timeout * 2,
+      expect: () => [
+        const NotificationsState(inApp: _offer),
+        const NotificationsState(),
+      ],
+    );
+
+    blocTest<NotificationsCubit, NotificationsState>(
+      'un aviso nuevo reinicia el conteo: el anterior no lo cierra antes',
+      build: () => build(inAppTimeout: timeout),
+      act: (cubit) async {
+        await cubit.start();
+        foreground.add(_offer);
+        await Future<void>.delayed(timeout * 0.6);
+        foreground.add(movement);
+        await Future<void>.delayed(timeout * 0.6);
+        // El primer temporizador ya habría vencido: el nuevo sigue visible.
+        expect(cubit.state.inApp, movement);
+      },
+      wait: timeout * 2,
+      expect: () => [
+        const NotificationsState(inApp: _offer),
+        const NotificationsState(inApp: movement),
+        const NotificationsState(),
+      ],
+    );
+
+    blocTest<NotificationsCubit, NotificationsState>(
+      'cerrarlo a mano cancela el temporizador',
+      build: () => build(inAppTimeout: timeout),
+      act: (cubit) async {
+        await cubit.start();
+        foreground.add(_offer);
+        await pumpEventQueue();
+        cubit.dismiss();
+      },
+      wait: timeout * 2,
+      // Sin un segundo "cerrar" duplicado tras el vencimiento.
+      expect: () => [
+        const NotificationsState(inApp: _offer),
+        const NotificationsState(),
+      ],
+    );
+  });
 }
