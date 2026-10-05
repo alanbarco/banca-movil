@@ -257,8 +257,8 @@ aviso in-app, baja al cerrar sesión, herramientas de envío.
 **Purpose**: Simulador de fallos, accesibilidad, documentación y validación final.
 
 - [X] T111 Crear `lib/core/fault_injection/presentation/fault_panel_page.dart` (por cada `FaultTarget`: normal / sin conexión / latencia con slider / error) en ruta `/debug/faults`, visible solo con `DEMO_TOOLS=true` y flag `demo_fault_panel`; acceso desde `profile_page.dart`
-- [ ] T112 [P] Widget test de accesibilidad en `test/accessibility/text_scale_test.dart` (inicio, detalle de cuenta y divisas con `textScaler` 2.0 sin overflow; `meetsGuideline(androidTapTargetGuideline)` y `labeledTapTargetGuideline`)
-- [ ] T113 Revisión de accesibilidad y contraste en `lib/core/ui/` y widgets de features (etiquetas `Semantics` en montos, íconos y botones; orden de foco)
+- [X] T112 [P] Widget test de accesibilidad en `test/accessibility/text_scale_test.dart` (inicio, detalle de cuenta y divisas con `textScaler` 2.0 sin overflow; `meetsGuideline(androidTapTargetGuideline)` y `labeledTapTargetGuideline`)
+- [X] T113 Revisión de accesibilidad y contraste en `lib/core/ui/` y widgets de features (etiquetas `Semantics` en montos, íconos y botones; orden de foco)
 - [X] T114 [P] Escribir ADRs en `docs/adr/`: `001-firebase-backend.md`, `002-onboarding-provisioning-batch.md`, `003-sdui-remote-config.md`, `004-fx-external-service.md`, `005-resilience-fault-injection.md`, `006-feature-first-to-packages.md` (problema, alternativas, decisión, trade-offs, impacto largo plazo; fuente: `research.md`)
 - [X] T115 [P] Escribir `docs/architecture.md` con diagramas Mermaid: componentes (`app`/`core`/`features`), regla de dependencias, secuencia de onboarding con batch, flujo offline/stale, flujo de push y deep link; supuestos, riesgos técnicos y estrategia de escalamiento
 - [X] T116 [P] Escribir `docs/operations.md`: despliegue (Firebase CLI, build APK, distribución gratuita con Firebase App Distribution), monitoreo (Crashlytics, alertas de velocidad, Analytics funnels/DebugView), detección de problemas de UX, comportamiento ante conectividad limitada/latencia/caídas, runbook de incidentes

@@ -33,54 +33,57 @@ class BannerSection extends StatelessWidget {
     return Card(
       color: background,
       clipBehavior: Clip.antiAlias,
-      child: Semantics(
-        button: route != null,
-        child: InkWell(
-          onTap: route == null ? null : () => openSduiRoute(context, route),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSizes.spacing),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        payload['title'] as String,
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          color: foreground,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        payload['subtitle'] as String,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: foreground,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                ExcludeSemantics(
-                  child: SizedBox.square(
-                    dimension: 56,
-                    child: imageUrl == null
-                        ? _FallbackIcon(color: foreground)
-                        : ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              imageUrl,
-                              fit: BoxFit.cover,
-                              // Imagen caída: ícono en su lugar (FR-016).
-                              errorBuilder: (_, _, _) =>
-                                  _FallbackIcon(color: foreground),
-                            ),
+      // Un solo foco para el lector de pantalla: título, subtítulo y acción.
+      child: MergeSemantics(
+        child: Semantics(
+          button: route != null,
+          child: InkWell(
+            onTap: route == null ? null : () => openSduiRoute(context, route),
+            child: Padding(
+              padding: const EdgeInsets.all(AppSizes.spacing),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          payload['title'] as String,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            color: foreground,
+                            fontWeight: FontWeight.w600,
                           ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          payload['subtitle'] as String,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: foreground,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 12),
+                  ExcludeSemantics(
+                    child: SizedBox.square(
+                      dimension: 56,
+                      child: imageUrl == null
+                          ? _FallbackIcon(color: foreground)
+                          : ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                imageUrl,
+                                fit: BoxFit.cover,
+                                // Imagen caída: ícono en su lugar (FR-016).
+                                errorBuilder: (_, _, _) =>
+                                    _FallbackIcon(color: foreground),
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
