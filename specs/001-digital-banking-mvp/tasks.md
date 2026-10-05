@@ -234,19 +234,19 @@ aviso in-app, baja al cerrar sesión, herramientas de envío.
 
 ### Tests for User Story 5
 
-- [ ] T101 [P] [US5] Test de `NotificationsRepositoryImpl` en `test/features/notifications/data/notifications_repository_impl_test.dart` (al `signedIn`: guarda token y suscribe `all` + `segment_<segmento>`; `segmentChanged` des-suscribe el anterior; `signingOut` des-suscribe, borra `devices/{token}` y `deleteToken()`)
-- [ ] T102 [P] [US5] Test de `ResolvePushRoute` en `test/features/notifications/domain/resolve_push_route_test.dart` (ruta conocida → ruta; desconocida → `/home`; sin sesión → guarda en `PendingRouteStore`)
-- [ ] T103 [P] [US5] Test de `NotificationsCubit` en `test/features/notifications/presentation/bloc/notifications_cubit_test.dart` (explicación previa una sola vez, respeta denegación, mensaje en primer plano emite aviso, `push_opened`)
+- [X] T101 [P] [US5] Test de `NotificationsRepositoryImpl` en `test/features/notifications/data/notifications_repository_impl_test.dart` (al `signedIn`: guarda token y suscribe `all` + `segment_<segmento>`; `segmentChanged` des-suscribe el anterior; `signingOut` des-suscribe, borra `devices/{token}` y `deleteToken()`)
+- [X] T102 [P] [US5] Test de `ResolvePushRoute` en `test/features/notifications/domain/resolve_push_route_test.dart` (ruta conocida → ruta; desconocida → `/home`; sin sesión → guarda en `PendingRouteStore`)
+- [X] T103 [P] [US5] Test de `NotificationsCubit` en `test/features/notifications/presentation/bloc/notifications_cubit_test.dart` (explicación previa una sola vez, respeta denegación, mensaje en primer plano emite aviso, `push_opened`)
 
 ### Implementation for User Story 5
 
-- [ ] T104 [P] [US5] Crear entidad `PushMessage` (`title`, `body`, `type` `movement|offer|announcement`, `route`), contrato `NotificationsRepository` y caso de uso `ResolvePushRoute` en `lib/features/notifications/domain/`
-- [ ] T105 [US5] Crear `FcmDatasource` (permiso, token, `onTokenRefresh`, topics, `onMessage`, `onMessageOpenedApp`, `getInitialMessage`) y `DevicesDatasource` (`users/{uid}/devices/{token}` con `platform`, `createdAt`, `lastSeenAt`) en `lib/features/notifications/data/datasources/`
-- [ ] T106 [US5] Implementar `NotificationsRepositoryImpl` escuchando `SessionEvents` en `lib/features/notifications/data/repositories/notifications_repository_impl.dart`
-- [ ] T107 [US5] Crear `NotificationsCubit` en `lib/features/notifications/presentation/bloc/notifications_cubit.dart`, `permission_explainer_dialog.dart` (flag `push_opt_in_prompt`) y `in_app_notification_listener.dart` (`MaterialBanner` con acción "Ver") en `lib/features/notifications/presentation/widgets/`
-- [ ] T108 [US5] Integrar en la app: handler de background en `lib/main.dart`, `InAppNotificationListener` en `lib/app/shell/app_shell.dart`, navegación por deep link y `PendingRouteStore` en `lib/app/router.dart`, metadato de canal por defecto en `android/app/src/main/AndroidManifest.xml`; registrar en `lib/features/notifications/notifications_module.dart`
-- [ ] T109 [US5] Agregar interruptor de notificaciones en `lib/features/auth/presentation/pages/profile_page.dart` (actualiza `preferences.notificationsEnabled` y permiso)
-- [ ] T110 [P] [US5] Crear `tools/admin/package.json` (Node LTS, `firebase-admin`, `minimist`), `tools/admin/add-movement.js` (transacción: crea movimiento, actualiza `balanceCents`/`updatedAt`, valida saldo ≥ 0, envía push `type=movement` con `route=/accounts/{id}` a los tokens del cliente), `tools/admin/send-push.js` (`--topic --title --body --route`) y `tools/admin/README.md`; credencial `tools/admin/service-account.json` no versionada
+- [X] T104 [P] [US5] Crear entidad `PushMessage` (`title`, `body`, `type` `movement|offer|announcement`, `route`), contrato `NotificationsRepository` y caso de uso `ResolvePushRoute` en `lib/features/notifications/domain/`
+- [X] T105 [US5] Crear `FcmDatasource` (permiso, token, `onTokenRefresh`, topics, `onMessage`, `onMessageOpenedApp`, `getInitialMessage`) y `DevicesDatasource` (`users/{uid}/devices/{token}` con `platform`, `createdAt`, `lastSeenAt`) en `lib/features/notifications/data/datasources/`
+- [X] T106 [US5] Implementar `NotificationsRepositoryImpl` escuchando `SessionEvents` en `lib/features/notifications/data/repositories/notifications_repository_impl.dart`
+- [X] T107 [US5] Crear `NotificationsCubit` en `lib/features/notifications/presentation/bloc/notifications_cubit.dart`, `permission_explainer_dialog.dart` (flag `push_opt_in_prompt`) y `in_app_notification_listener.dart` (`MaterialBanner` con acción "Ver") en `lib/features/notifications/presentation/widgets/`
+- [X] T108 [US5] Integrar en la app: handler de background en `lib/main.dart`, `InAppNotificationListener` en `lib/app/shell/app_shell.dart`, navegación por deep link y `PendingRouteStore` en `lib/app/router.dart`, metadato de canal por defecto en `android/app/src/main/AndroidManifest.xml`; registrar en `lib/features/notifications/notifications_module.dart`
+- [X] T109 [US5] Agregar interruptor de notificaciones en `lib/features/auth/presentation/pages/profile_page.dart` (actualiza `preferences.notificationsEnabled` y permiso)
+- [X] T110 [P] [US5] Crear `tools/admin/package.json` (Node LTS, `firebase-admin`, `minimist`), `tools/admin/add-movement.js` (transacción: crea movimiento, actualiza `balanceCents`/`updatedAt`, valida saldo ≥ 0, envía push `type=movement` con `route=/accounts/{id}` a los tokens del cliente), `tools/admin/send-push.js` (`--topic --title --body --route`) y `tools/admin/README.md`; credencial `tools/admin/service-account.json` no versionada
 
 **Checkpoint**: Push por segmento y personal funcionando; tocar la notificación abre la pantalla correcta.
 
