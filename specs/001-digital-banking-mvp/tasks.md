@@ -243,7 +243,7 @@ aviso in-app, baja al cerrar sesión, herramientas de envío.
 - [X] T104 [P] [US5] Crear entidad `PushMessage` (`title`, `body`, `type` `movement|offer|announcement`, `route`), contrato `NotificationsRepository` y caso de uso `ResolvePushRoute` en `lib/features/notifications/domain/`
 - [X] T105 [US5] Crear `FcmDatasource` (permiso, token, `onTokenRefresh`, topics, `onMessage`, `onMessageOpenedApp`, `getInitialMessage`) y `DevicesDatasource` (`users/{uid}/devices/{token}` con `platform`, `createdAt`, `lastSeenAt`) en `lib/features/notifications/data/datasources/`
 - [X] T106 [US5] Implementar `NotificationsRepositoryImpl` escuchando `SessionEvents` en `lib/features/notifications/data/repositories/notifications_repository_impl.dart`
-- [X] T107 [US5] Crear `NotificationsCubit` en `lib/features/notifications/presentation/bloc/notifications_cubit.dart`, `permission_explainer_dialog.dart` (flag `push_opt_in_prompt`) y `in_app_notification_listener.dart` (`MaterialBanner` con acción "Ver") en `lib/features/notifications/presentation/widgets/`
+- [X] T107 [US5] Crear `NotificationsCubit` en `lib/features/notifications/presentation/bloc/notifications_cubit.dart`, `permission_explainer_dialog.dart` (flag `push_opt_in_prompt`) y `in_app_notification_listener.dart` (tarjeta flotante arriba con acción "Ver", se cierra sola a los 7 s) en `lib/features/notifications/presentation/widgets/`
 - [X] T108 [US5] Integrar en la app: handler de background en `lib/main.dart`, `InAppNotificationListener` en `lib/app/shell/app_shell.dart`, navegación por deep link y `PendingRouteStore` en `lib/app/router.dart`, metadato de canal por defecto en `android/app/src/main/AndroidManifest.xml`; registrar en `lib/features/notifications/notifications_module.dart`
 - [X] T109 [US5] Agregar interruptor de notificaciones en `lib/features/auth/presentation/pages/profile_page.dart` (actualiza `preferences.notificationsEnabled` y permiso)
 - [X] T110 [P] [US5] Crear `tools/admin/package.json` (Node LTS, `firebase-admin`, `minimist`), `tools/admin/add-movement.js` (transacción: crea movimiento, actualiza `balanceCents`/`updatedAt`, valida saldo ≥ 0, envía push `type=movement` con `route=/accounts/{id}` a los tokens del cliente), `tools/admin/send-push.js` (`--topic --title --body --route`) y `tools/admin/README.md`; credencial `tools/admin/service-account.json` no versionada
@@ -259,11 +259,11 @@ aviso in-app, baja al cerrar sesión, herramientas de envío.
 - [X] T111 Crear `lib/core/fault_injection/presentation/fault_panel_page.dart` (por cada `FaultTarget`: normal / sin conexión / latencia con slider / error) en ruta `/debug/faults`, visible solo con `DEMO_TOOLS=true` y flag `demo_fault_panel`; acceso desde `profile_page.dart`
 - [ ] T112 [P] Widget test de accesibilidad en `test/accessibility/text_scale_test.dart` (inicio, detalle de cuenta y divisas con `textScaler` 2.0 sin overflow; `meetsGuideline(androidTapTargetGuideline)` y `labeledTapTargetGuideline`)
 - [ ] T113 Revisión de accesibilidad y contraste en `lib/core/ui/` y widgets de features (etiquetas `Semantics` en montos, íconos y botones; orden de foco)
-- [ ] T114 [P] Escribir ADRs en `docs/adr/`: `001-firebase-backend.md`, `002-onboarding-provisioning-batch.md`, `003-sdui-remote-config.md`, `004-fx-external-service.md`, `005-resilience-fault-injection.md`, `006-feature-first-to-packages.md` (problema, alternativas, decisión, trade-offs, impacto largo plazo; fuente: `research.md`)
-- [ ] T115 [P] Escribir `docs/architecture.md` con diagramas Mermaid: componentes (`app`/`core`/`features`), regla de dependencias, secuencia de onboarding con batch, flujo offline/stale, flujo de push y deep link; supuestos, riesgos técnicos y estrategia de escalamiento
-- [ ] T116 [P] Escribir `docs/operations.md`: despliegue (Firebase CLI, build APK, distribución gratuita con Firebase App Distribution), monitoreo (Crashlytics, alertas de velocidad, Analytics funnels/DebugView), detección de problemas de UX, comportamiento ante conectividad limitada/latencia/caídas, runbook de incidentes
-- [ ] T117 [P] Escribir `docs/ai-usage.md`: herramientas (Claude Code + Spec Kit), flujo constitución → spec → plan → tasks → implement, ejemplos concretos, impacto en productividad, calidad, documentación y pruebas, límites y verificaciones humanas
-- [ ] T118 Escribir `README.md`: descripción, capturas, requisitos, configuración (enlace a `specs/001-digital-banking-mvp/quickstart.md`), ejecutar, probar, demo (panel de fallos, `tools/admin`), estructura, cómo se diseñó (enlaces a `specs/` y `docs/`), flujo TBD y convención de commits
+- [X] T114 [P] Escribir ADRs en `docs/adr/`: `001-firebase-backend.md`, `002-onboarding-provisioning-batch.md`, `003-sdui-remote-config.md`, `004-fx-external-service.md`, `005-resilience-fault-injection.md`, `006-feature-first-to-packages.md` (problema, alternativas, decisión, trade-offs, impacto largo plazo; fuente: `research.md`)
+- [X] T115 [P] Escribir `docs/architecture.md` con diagramas Mermaid: componentes (`app`/`core`/`features`), regla de dependencias, secuencia de onboarding con batch, flujo offline/stale, flujo de push y deep link; supuestos, riesgos técnicos y estrategia de escalamiento
+- [X] T116 [P] Escribir `docs/operations.md`: despliegue (Firebase CLI, build APK, distribución gratuita con Firebase App Distribution), monitoreo (Crashlytics, alertas de velocidad, Analytics funnels/DebugView), detección de problemas de UX, comportamiento ante conectividad limitada/latencia/caídas, runbook de incidentes
+- [X] T117 [P] Escribir `docs/ai-usage.md`: herramientas (Claude Code + Spec Kit), flujo constitución → spec → plan → tasks → implement, ejemplos concretos, impacto en productividad, calidad, documentación y pruebas, límites y verificaciones humanas
+- [X] T118 Escribir `README.md`: descripción, capturas, requisitos, configuración (enlace a `specs/001-digital-banking-mvp/quickstart.md`), ejecutar, probar, demo (panel de fallos, `tools/admin`), estructura, cómo se diseñó (enlaces a `specs/` y `docs/`), flujo TBD y convención de commits
 - [ ] T119 Ejecutar `dart format`, `flutter analyze`, `flutter test --coverage` y `dart run tool/check_coverage.dart`; corregir hasta pasar (≥ 70 %)
 - [ ] T120 Ejecutar la validación manual V1–V20 de `specs/001-digital-banking-mvp/quickstart.md` en emulador/dispositivo y el E2E `flutter test integration_test`; registrar hallazgos como riesgos conocidos en `docs/operations.md`
 
@@ -357,7 +357,7 @@ Task: "T096 Entidad ExchangeRates + contrato + caso de uso"
 3. Test de accesibilidad automatizado (T112): mantener la revisión manual (T113).
 
 Nunca recortar: tests de BLoC/casos de uso, E2E, simulador de fallos ni documentación (son
-criterios de evaluación).
+requerimientos de la aplicación).
 
 ---
 

@@ -2,8 +2,8 @@
 .claude/settings.local.json
 CLAUDE.local.md
 
-# --- Enunciado de la prueba técnica (material del banco, no se publica) ---
-BI - Prueba Tecnica Senior Front.pdf
+# --- Documentos internos de requerimientos (no se publican) ---
+/*.pdf
 
 # --- Secretos (Principio VI) ---
 .env

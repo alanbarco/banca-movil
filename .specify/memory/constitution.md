@@ -62,7 +62,7 @@ encaja con la capa de presentación de Clean Architecture.
 - Un componente SDUI desconocido o un payload inválido MUST degradarse a un fallback seguro
   (ocultar o mostrar placeholder) y registrarse en observabilidad; nunca romper la pantalla.
 
-**Rationale**: El reto exige adaptar la experiencia dinámicamente e incorporar contenidos sin
+**Rationale**: Los requerimientos de la aplicación exigen adaptar la experiencia dinámicamente e incorporar contenidos sin
 republicar; los flags además habilitan Trunk Based Development seguro.
 
 ### IV. Resiliencia y Degradación Controlada (Offline-First)
@@ -83,7 +83,7 @@ republicar; los flags además habilitan Trunk Based Development seguro.
   (p. ej. decoradores de repositorio activables por flag o menú de debug) que evidencie
   estos comportamientos en la demo.
 
-**Rationale**: Es un requisito explícito de alcance y de evaluación ("manejo de escenarios
+**Rationale**: Es un requisito explícito de la aplicación ("manejo de escenarios
 degradados") y es crítico en una banca 100 % digital.
 
 ### V. Calidad Verificable por Pruebas
@@ -99,8 +99,8 @@ degradados") y es crítico en una banca 100 % digital.
 - Las pruebas unitarias y de widget MUST ejecutarse en CI en cada push a `main`; un pipeline
   rojo bloquea nuevos cambios hasta corregirse.
 
-**Rationale**: El reto exige pruebas unitarias, de widget y E2E, y en la demo se puede pedir
-ajustar una prueba o diagnosticar una falla. El umbral se ajusta a la ventana de 2 días.
+**Rationale**: Los requerimientos de la aplicación exigen pruebas unitarias, de widget y E2E,
+y el equipo debe poder ajustar una prueba o diagnosticar una falla con rapidez. El umbral se ajusta a la ventana de 2 días.
 
 ### VI. Seguridad y Observabilidad por Diseño
 
@@ -123,7 +123,7 @@ ajustar una prueba o diagnosticar una falla. El umbral se ajusta a la ventana de
 - La UI MUST cumplir accesibilidad básica: etiquetas `Semantics`, contraste suficiente,
   soporte de escalado de texto y áreas táctiles ≥ 48 dp.
 
-**Rationale**: Seguridad, observabilidad y accesibilidad son criterios de evaluación
+**Rationale**: Seguridad, observabilidad y accesibilidad son requerimientos
 explícitos y obligatorios en un contexto bancario.
 
 ### VII. Costo Cero con Integración Real
@@ -140,8 +140,8 @@ explícitos y obligatorios en un contexto bancario.
   documentados: Firestore Security Rules e índices (Firebase CLI), plantilla de Remote
   Config y datos semilla (script o pasos reproducibles en el README).
 
-**Rationale**: Restricción explícita del autor (prueba técnica sin costos) y del evaluador
-(las soluciones solo con datos simulados no puntúan).
+**Rationale**: Los requerimientos de la aplicación fijan costo cero e integración con
+servicios reales (una solución solo con datos simulados no es válida).
 
 ### VIII. Decisiones Documentadas y Uso Transparente de IA
 
@@ -155,7 +155,7 @@ explícitos y obligatorios en un contexto bancario.
   qué se usaron, ejemplos y su impacto en productividad, calidad, documentación y pruebas.
 - El README MUST permitir configurar, ejecutar, probar y colaborar de forma reproducible.
 
-**Rationale**: La documentación y el uso de IA son entregables y criterios evaluados.
+**Rationale**: La documentación y el uso de IA son parte de los requerimientos de la aplicación.
 
 ## Restricciones Tecnológicas y de Costo
 
@@ -179,7 +179,7 @@ explícitos y obligatorios en un contexto bancario.
   (p. ej. `shared_preferences`/`hive`) para cachés no sensibles + `flutter_secure_storage`.
 - **CI/CD**: GitHub Actions.
 - **Alternativas descartadas** (a documentar en ADR): Supabase y backend propio
-  (Dart Shelf/Node) por curva de aprendizaje y costo de tiempo frente a la ventana de 2 días.
+  (Dart Shelf/Node) por el costo de tiempo de montar y operar frente a la ventana de 2 días.
 - Toda dependencia nueva MUST justificarse (propósito, licencia, mantenimiento activo) y no
   romper el Principio VII.
 

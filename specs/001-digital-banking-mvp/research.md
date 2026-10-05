@@ -16,8 +16,8 @@ se convierten en un ADR en `docs/adr/` durante la implementación (Principio VII
   incluida, push gratuito y consola de administración que sirve como "backoffice" del banco.
   Encaja con la ventana de 2 días.
 - **Alternatives considered**:
-  - *Supabase*: modelo relacional más natural para un banco y RLS potente, pero curva de
-    aprendizaje, Docker para local y dos proveedores (seguiría haciendo falta FCM).
+  - *Supabase*: modelo relacional más natural para un banco y RLS potente, pero más
+    configuración inicial, Docker para local y dos proveedores (seguiría haciendo falta FCM).
   - *Backend propio (Dart Shelf / Node)*: control total, pero hay que construir auth,
     persistencia, tiempo real y despliegue; inviable en 2 días.
   - *Firebase Local Emulator Suite como entorno principal*: gratis, pero requiere Java y no
@@ -112,7 +112,7 @@ se convierten en un ADR en `docs/adr/` durante la implementación (Principio VII
 - **Decision**: FCM con **topics** `all` y `segment_<segmento>` para envíos masivos/por
   segmento, y tokens por dispositivo en `users/{uid}/devices` para envíos personales.
   Payload con `data.route` para deep link vía `go_router`. Primer plano: aviso in-app
-  (`MaterialBanner`), sin dependencia extra. Al cerrar sesión: unsubscribe de topics y
+  (tarjeta flotante arriba en un `Overlay`, se cierra sola a los 7 s), sin dependencia extra. Al cerrar sesión: unsubscribe de topics y
   `deleteToken()`.
 - **Envío**: consola de Firebase (Messaging) para campañas por topic, y script local
   `tools/admin` (Node + `firebase-admin`, gratis) que registra un movimiento, actualiza el
