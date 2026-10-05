@@ -25,6 +25,7 @@ import '../core/storage/local_storage.dart';
 import '../features/accounts/accounts_module.dart';
 import '../features/auth/auth_module.dart';
 import '../features/fx/fx_module.dart';
+import '../features/notifications/notifications_module.dart';
 import '../features/personalization/personalization_module.dart';
 import 'app_config.dart';
 
@@ -37,6 +38,7 @@ const featureModules = <FeatureModule>[
   AccountsModule(),
   PersonalizationModule(),
   FxModule(),
+  NotificationsModule(),
 ];
 
 /// Registra `core` y luego las features. Los servicios que requieren

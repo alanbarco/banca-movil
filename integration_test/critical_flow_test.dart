@@ -1,6 +1,7 @@
 import 'package:bi_app/core/ui/widgets/money_text.dart';
 import 'package:bi_app/features/accounts/presentation/widgets/account_card.dart';
 import 'package:bi_app/features/accounts/presentation/widgets/movement_tile.dart';
+import 'package:bi_app/features/notifications/presentation/widgets/permission_explainer_dialog.dart';
 import 'package:bi_app/main.dart' as app;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -58,12 +59,30 @@ void main() {
         findsOneWidget,
       );
 
+      // La explicación del permiso de push sale una vez por dispositivo.
+      await _dismissIfShown(
+        tester,
+        find.text(PermissionExplainerDialog.decline),
+      );
+
       // Detalle: al menos 3 movimientos de la semilla de onboarding.
       await tester.tap(find.byType(AccountCard));
       await _pumpUntilFound(tester, find.byType(MovementTile));
       expect(find.byType(MovementTile), findsAtLeastNWidgets(3));
     },
   );
+}
+
+Future<void> _dismissIfShown(WidgetTester tester, Finder finder) async {
+  final end = DateTime.now().add(const Duration(seconds: 3));
+  while (DateTime.now().isBefore(end)) {
+    await tester.pump(const Duration(milliseconds: 200));
+    if (finder.evaluate().isNotEmpty) {
+      await tester.tap(finder);
+      await tester.pump(const Duration(milliseconds: 300));
+      return;
+    }
+  }
 }
 
 Finder _field(String label) => find.widgetWithText(TextField, label);

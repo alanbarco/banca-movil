@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/notifications/notifications_toggle.dart';
 import '../../../../core/ui/theme.dart';
 import '../../domain/entities/interest.dart';
 import '../../domain/usecases/update_interests.dart';
@@ -8,17 +9,21 @@ import '../auth_texts.dart';
 import '../bloc/auth_bloc.dart';
 import '../widgets/edit_interests_sheet.dart';
 
-/// Datos del cliente, intereses editables (FR-018) y cierre de sesión. La
-/// sección de notificaciones se completa en US5.
+/// Datos del cliente, intereses editables (FR-018), notificaciones (FR-023)
+/// y cierre de sesión.
 class ProfilePage extends StatelessWidget {
   const ProfilePage({
     required this.authBloc,
     required this.updateInterests,
+    this.notifications,
     super.key,
   });
 
   final AuthBloc authBloc;
   final UpdateInterests updateInterests;
+
+  /// `null` si la feature de notificaciones no está registrada.
+  final NotificationsToggle? notifications;
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +94,13 @@ class ProfilePage extends StatelessWidget {
                   ],
                 ),
               ),
+              if (notifications case final toggle?) ...[
+                const Divider(height: AppSizes.spacing * 3),
+                _NotificationsTile(
+                  enabled: profile.notificationsEnabled,
+                  toggle: toggle,
+                ),
+              ],
               const Divider(height: AppSizes.spacing * 3),
               Padding(
                 padding: const EdgeInsets.symmetric(
@@ -120,5 +132,46 @@ class ProfilePage extends StatelessWidget {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Intereses actualizados.')));
+  }
+}
+
+class _NotificationsTile extends StatefulWidget {
+  const _NotificationsTile({required this.enabled, required this.toggle});
+
+  final bool enabled;
+  final NotificationsToggle toggle;
+
+  static const deniedMessage =
+      'Las notificaciones están bloqueadas. Actívalas desde los ajustes '
+      'del teléfono.';
+
+  @override
+  State<_NotificationsTile> createState() => _NotificationsTileState();
+}
+
+class _NotificationsTileState extends State<_NotificationsTile> {
+  bool _saving = false;
+
+  Future<void> _change(bool enabled) async {
+    setState(() => _saving = true);
+    final applied = await widget.toggle.setEnabled(enabled: enabled);
+    if (!mounted) return;
+    setState(() => _saving = false);
+    if (!applied) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(_NotificationsTile.deniedMessage)),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SwitchListTile(
+      secondary: const Icon(Icons.notifications_outlined),
+      title: const Text('Notificaciones'),
+      subtitle: const Text('Movimientos de tus cuentas y ofertas para ti'),
+      value: widget.enabled,
+      onChanged: _saving ? null : _change,
+    );
   }
 }

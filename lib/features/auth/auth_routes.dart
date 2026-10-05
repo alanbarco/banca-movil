@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/notifications/notifications_toggle.dart';
 import '../../core/observability/observability_service.dart';
 import '../../core/routing/app_routes.dart';
 import 'data/datasources/onboarding_seed_datasource.dart';
@@ -67,6 +68,9 @@ List<RouteBase> authShellRoutes() => [
     builder: (context, state) => ProfilePage(
       authBloc: _getIt<AuthBloc>(),
       updateInterests: _getIt<UpdateInterests>(),
+      notifications: _getIt.isRegistered<NotificationsToggle>()
+          ? _getIt<NotificationsToggle>()
+          : null,
     ),
   ),
 ];
