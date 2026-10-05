@@ -1,0 +1,17 @@
+{
+  "name": "bi-app-admin-tools",
+  "private": true,
+  "description": "Herramientas del banco para la demo: movimientos con aviso push y envíos a topics.",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "add-movement": "node add-movement.js",
+    "send-push": "node send-push.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.4.0",
+    "minimist": "^1.2.8"
+  }
+}
