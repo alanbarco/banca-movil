@@ -17,6 +17,7 @@ import 'core/fault_injection/presentation/fault_panel_page.dart';
 import 'core/flags/feature_flag_service.dart';
 import 'core/flags/remote_config_service.dart';
 import 'core/observability/firebase_observability_service.dart';
+import 'core/observability/observability_service.dart';
 import 'core/routing/pending_route_store.dart';
 import 'core/session/current_user_profile.dart';
 import 'core/session/session_status.dart';
@@ -30,7 +31,11 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   final crashlytics = FirebaseCrashlytics.instance;
-  await crashlytics.setCrashlyticsCollectionEnabled(!kDebugMode);
+  // En debug solo se reporta con DEMO_TOOLS, para probar Crashlytics desde el
+  // simulador de fallos sin compilar en release.
+  await crashlytics.setCrashlyticsCollectionEnabled(
+    !kDebugMode || AppConfig.demoTools,
+  );
   FlutterError.onError = crashlytics.recordFlutterFatalError;
   PlatformDispatcher.instance.onError = (error, stack) {
     unawaited(crashlytics.recordError(error, stack, fatal: true));
@@ -89,7 +94,10 @@ GoRouter _buildRouter(RemoteConfigService remoteConfig) {
     refreshOn: [session.changes, flags.changes],
     splashDebugInfo: () => _configSummary(remoteConfig),
     faultPanel: AppConfig.demoTools
-        ? (_) => FaultPanelPage(cubit: getIt<FaultInjectionCubit>())
+        ? (_) => FaultPanelPage(
+            cubit: getIt<FaultInjectionCubit>(),
+            observability: getIt<ObservabilityService>(),
+          )
         : null,
   );
 }

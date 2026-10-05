@@ -5,6 +5,8 @@ import 'package:bi_app/core/fault_injection/presentation/fault_panel_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../helpers/fake_observability.dart';
+
 void main() {
   late FaultInjectionCubit cubit;
 
@@ -69,6 +71,48 @@ void main() {
     await tester.pump();
 
     expect(cubit.configFor(FaultTarget.fx).mode, FaultMode.none);
+  });
+
+  group('Crashlytics', () {
+    late FakeObservabilityService observability;
+
+    Future<void> pumpWithCrash(WidgetTester tester) async {
+      observability = FakeObservabilityService();
+      tester.view.physicalSize = const Size(1080, 3200);
+      tester.view.devicePixelRatio = 2.5;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FaultPanelPage(cubit: cubit, observability: observability),
+        ),
+      );
+    }
+
+    testWidgets('sin observabilidad no se muestran los botones', (
+      tester,
+    ) async {
+      await pumpPanel(tester);
+      expect(find.text(FaultPanelPage.fatal), findsNothing);
+    });
+
+    testWidgets('el error no fatal se registra sin cerrar la app', (
+      tester,
+    ) async {
+      await pumpWithCrash(tester);
+
+      await tester.tap(find.text(FaultPanelPage.nonFatal));
+
+      expect(observability.errors.single, isA<DemoCrash>());
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('el crash fatal lanza un error sin capturar', (tester) async {
+      await pumpWithCrash(tester);
+
+      await tester.tap(find.text(FaultPanelPage.fatal));
+
+      expect(tester.takeException(), isA<DemoCrash>());
+    });
   });
 
   test('FaultPanelAccess evalúa la condición en cada consulta', () {
